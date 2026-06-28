@@ -1042,3 +1042,136 @@ footer {
         padding: 20px;
     }
     }
+/* ============ المنشورات في الأعلى ============ */
+.posts-top {
+    background: #f0f2ff;
+    padding: 8px 0;
+    overflow: hidden;
+    border-bottom: 1px solid #e0e0ff;
+}
+
+.posts-top-container {
+    display: flex;
+    gap: 15px;
+    animation: scrollPosts 30s linear infinite;
+    white-space: nowrap;
+    padding: 0 20px;
+}
+
+@keyframes scrollPosts {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
+}
+
+.posts-top-container:hover {
+    animation-play-state: paused;
+}
+
+.post-top-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 15px;
+    border-radius: 20px;
+    color: white;
+    font-size: 13px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.post-top-item span {
+    font-size: 14px;
+}
+
+.post-top-item strong {
+    margin-left: 5px;
+}
+
+.post-top-item a {
+    color: #ffd700;
+    text-decoration: none;
+}
+
+/* ============ الحاسبة العائمة ============ */
+.floating-calc {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 300px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    z-index: 2000;
+    transition: var(--transition);
+    overflow: hidden;
+}
+
+.floating-calc-header {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 12px 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: bold;
+    font-size: 15px;
+}
+
+.floating-calc-body {
+    padding: 15px 20px;
+}
+
+.floating-calc-body .calc-group {
+    margin-bottom: 12px;
+}
+
+.floating-calc-body .calc-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 13px;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.floating-calc-body .calc-group input {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.floating-calc-body .calc-result .result-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    font-size: 13px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.floating-calc-body .calc-result .result-row.total {
+    font-weight: bold;
+    font-size: 16px;
+    color: #667eea;
+    border-top: 2px solid #667eea;
+    padding-top: 8px;
+    margin-top: 5px;
+    border-bottom: none;
+}
+
+@media (max-width: 768px) {
+    .floating-calc {
+        width: 260px;
+        bottom: 10px;
+        right: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .floating-calc {
+        width: 90%;
+        right: 5%;
+        bottom: 10px;
+    }
+}
