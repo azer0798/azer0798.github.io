@@ -1,21 +1,40 @@
-// ============ بيانات المنتجات (محملة من localStorage أو افتراضية) ============
-function getProducts() {
-    const saved = localStorage.getItem('fibno_products');
-    if (saved) return JSON.parse(saved);
+// ============ المتغيرات العامة ============
+let products = [];
+let cart = JSON.parse(localStorage.getItem('fibno_cart')) || [];
+const coupons = { 'WELCOME10': 10, 'SAVE20': 20, 'RAMADAN': 15 };
+
+// ============ تحميل المنتجات من API ============
+async function loadProducts() {
+    try {
+        const response = await fetch('/api/products');
+        if (response.ok) {
+            products = await response.json();
+        }
+    } catch (error) {
+        console.log('Using default products');
+        products = getDefaultProducts();
+    }
     
-    // منتجات افتراضية
-    const defaultProducts = [
+    if (products.length === 0) {
+        products = getDefaultProducts();
+    }
+    
+    return products;
+}
+
+function getDefaultProducts() {
+    return [
         {
-            id: 1,
+            _id: '1',
             name: "هاتف سامسونج جالاكسي",
             price: 45000,
             originalPrice: 52000,
             category: "electronics",
             image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Crect fill='%23e3f2fd' width='250' height='250'/%3E%3Ctext fill='%231976d2' x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-size='80'%3E📱%3C/text%3E%3C/svg%3E",
-            description: "هاتف ذكي متطور مع كاميرا عالية الدقة"
+            description: "هاتف ذكي متطور"
         },
         {
-            id: 2,
+            _id: '2',
             name: "سماعات بلوتوث",
             price: 3500,
             originalPrice: 5000,
@@ -24,49 +43,24 @@ function getProducts() {
             description: "سماعات لاسلكية عالية الجودة"
         },
         {
-            id: 3,
+            _id: '3',
             name: "كتاب تعلم البرمجة",
             price: 2500,
             category: "books",
             image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Crect fill='%23fff3e0' width='250' height='250'/%3E%3Ctext fill='%23f57c00' x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-size='80'%3E📚%3C/text%3E%3C/svg%3E",
-            description: "دليل شامل لتعلم البرمجة للمبتدئين"
+            description: "دليل شامل لتعلم البرمجة"
         },
         {
-            id: 4,
+            _id: '4',
             name: "قميص جزائري تقليدي",
             price: 4500,
             originalPrice: 6000,
             category: "clothing",
             image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Crect fill='%23e8f5e9' width='250' height='250'/%3E%3Ctext fill='%23388e3c' x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-size='80'%3E👕%3C/text%3E%3C/svg%3E",
             description: "قميص تقليدي جزائري أصلي"
-        },
-        {
-            id: 5,
-            name: "ساعة ذكية",
-            price: 12000,
-            originalPrice: 15000,
-            category: "electronics",
-            image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Crect fill='%23fce4ec' width='250' height='250'/%3E%3Ctext fill='%23c2185b' x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-size='80'%3E⌚%3C/text%3E%3C/svg%3E",
-            description: "ساعة ذكية متعددة الوظائف"
-        },
-        {
-            id: 6,
-            name: "حقيبة ظهر عصرية",
-            price: 3800,
-            category: "clothing",
-            image: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Crect fill='%23e0f2f1' width='250' height='250'/%3E%3Ctext fill='%2300796b' x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-size='80'%3E🎒%3C/text%3E%3C/svg%3E",
-            description: "حقيبة متينة وعملية للاستخدام اليومي"
         }
     ];
-    
-    localStorage.setItem('fibno_products', JSON.stringify(defaultProducts));
-    return defaultProducts;
 }
-
-// ============ المتغيرات ============
-const products = getProducts();
-let cart = JSON.parse(localStorage.getItem('fibno_cart')) || [];
-const coupons = { 'WELCOME10': 10, 'SAVE20': 20, 'RAMADAN': 15 };
 
 // ============ حفظ السلة ============
 function saveCart() {
@@ -81,30 +75,29 @@ function updateCartCount() {
 
 // ============ إضافة إلى السلة ============
 function addToCart(productId) {
-    const product = products.find(p => p.id === productId);
+    const product = products.find(p => (p._id === productId || p.id === productId));
     if (!product) return;
     
-    const existingItem = cart.find(item => item.id === productId);
+    const existingItem = cart.find(item => item._id === productId || item.id === productId);
     
     if (existingItem) {
         existingItem.quantity++;
     } else {
-        cart.push({ ...product, quantity: 1 });
+        cart.push({ ...product, quantity: 1, _id: product._id || product.id });
     }
     
     saveCart();
     showNotification('✅ تمت إضافة المنتج إلى السلة!');
-    // تأثير إضافة للسلة
     animateAddToCart(productId);
 }
 
 function animateAddToCart(productId) {
-    const buttons = document.querySelectorAll(`button[onclick="addToCart(${productId})"]`);
+    const buttons = document.querySelectorAll(`button[onclick="addToCart('${productId}')"]`);
     buttons.forEach(btn => {
         btn.textContent = '✓ تمت الإضافة';
         btn.style.background = '#00b894';
         setTimeout(() => {
-            btn.textContent = 'أضف إلى السلة';
+            btn.textContent = '🛒 أضف إلى السلة';
             btn.style.background = '';
         }, 1500);
     });
@@ -112,13 +105,13 @@ function animateAddToCart(productId) {
 
 // ============ إزالة من السلة ============
 function removeFromCart(productId) {
-    cart = cart.filter(item => item.id !== productId);
+    cart = cart.filter(item => item._id !== productId && item.id !== productId);
     saveCart();
     renderCart();
 }
 
 function updateQuantity(productId, change) {
-    const item = cart.find(item => item.id === productId);
+    const item = cart.find(item => item._id === productId || item.id === productId);
     if (item) {
         item.quantity += change;
         if (item.quantity <= 0) {
@@ -136,10 +129,13 @@ function createProductCard(product) {
         ? Math.round((1 - product.price / product.originalPrice) * 100) 
         : 0;
     
+    const productId = product._id || product.id;
+    
     return `
         <div class="product-card">
             ${discount > 0 ? `<span class="discount-badge">-${discount}%</span>` : ''}
-            <img src="${product.image}" alt="${product.name}" class="product-image">
+            <img src="${product.image || ''}" alt="${product.name}" class="product-image" 
+                 onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27250%27 height=%27250%27%3E%3Crect fill=%27%23ddd%27 width=%27250%27 height=%27250%27/%3E%3Ctext fill=%27%23999%27 x=%2750%25%27 y=%2750%25%27 text-anchor=%27middle%27 dy=%27.3em%27 font-size=%2780%27%3E📦%3C/text%3E%3C/svg%3E'">
             <div class="product-info">
                 <span class="product-category">${getCategoryName(product.category)}</span>
                 <h3 class="product-title">${product.name}</h3>
@@ -148,7 +144,7 @@ function createProductCard(product) {
                     <span class="current-price">${formatPrice(product.price)}</span>
                     ${product.originalPrice ? `<span class="original-price">${formatPrice(product.originalPrice)}</span>` : ''}
                 </div>
-                <button class="add-to-cart" onclick="addToCart(${product.id})">
+                <button class="add-to-cart" onclick="addToCart('${productId}')">
                     🛒 أضف إلى السلة
                 </button>
             </div>
@@ -167,13 +163,17 @@ function getCategoryName(cat) {
 }
 
 function formatPrice(price) {
-    return price.toLocaleString('ar-DZ') + ' دج';
+    return (price || 0).toLocaleString('ar-DZ') + ' دج';
 }
 
 function renderProducts(containerId, productsList) {
     const container = document.getElementById(containerId);
     if (container) {
-        container.innerHTML = productsList.map(createProductCard).join('');
+        if (productsList.length === 0) {
+            container.innerHTML = '<p style="text-align:center;grid-column:1/-1;padding:40px;">لا توجد منتجات</p>';
+        } else {
+            container.innerHTML = productsList.map(createProductCard).join('');
+        }
     }
 }
 
@@ -195,24 +195,28 @@ function renderCart() {
     cartEmpty.style.display = 'none';
     cartSummary.style.display = 'block';
     
-    cartItems.innerHTML = cart.map(item => `
+    cartItems.innerHTML = cart.map(item => {
+        const itemId = item._id || item.id;
+        return `
         <div class="cart-item">
-            <img src="${item.image}" alt="${item.name}" class="cart-item-image">
+            <img src="${item.image || ''}" alt="${item.name}" class="cart-item-image"
+                 onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27100%27 height=%27100%27%3E%3Crect fill=%27%23ddd%27 width=%27100%27 height=%27100%27/%3E%3Ctext fill=%27%23999%27 x=%2750%25%27 y=%2750%25%27 text-anchor=%27middle%27 dy=%27.3em%27 font-size=%2740%27%3E📦%3C/text%3E%3C/svg%3E'">
             <div class="cart-item-details">
                 <h3>${item.name}</h3>
                 <p class="item-price">${formatPrice(item.price)}</p>
                 <div class="quantity-control">
-                    <button onclick="updateQuantity(${item.id}, -1)">➖</button>
+                    <button onclick="updateQuantity('${itemId}', -1)">➖</button>
                     <span class="quantity">${item.quantity}</span>
-                    <button onclick="updateQuantity(${item.id}, 1)">➕</button>
+                    <button onclick="updateQuantity('${itemId}', 1)">➕</button>
                 </div>
             </div>
             <div class="cart-item-total">
                 <p>${formatPrice(item.price * item.quantity)}</p>
-                <button class="remove-item" onclick="removeFromCart(${item.id})">🗑️</button>
+                <button class="remove-item" onclick="removeFromCart('${itemId}')">🗑️</button>
             </div>
         </div>
-    `).join('');
+        `;
+    }).join('');
     
     updateTotals();
 }
@@ -258,29 +262,52 @@ function closeModal() {
     document.getElementById('checkout-modal').style.display = 'none';
 }
 
-// التعامل مع نموذج الطلب
 document.addEventListener('DOMContentLoaded', () => {
     const checkoutForm = document.getElementById('checkout-form');
     if (checkoutForm) {
         checkoutForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // جمع بيانات العميل
+            const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            const shipping = subtotal > 5000 ? 0 : 500;
+            const total = subtotal + shipping;
+            
             const orderData = {
-                name: document.getElementById('customer-name').value,
-                phone: document.getElementById('customer-phone').value,
-                email: document.getElementById('customer-email').value,
-                wilaya: document.getElementById('customer-wilaya').value,
-                address: document.getElementById('customer-address').value,
-                notes: document.getElementById('customer-notes').value,
-                payment: document.querySelector('input[name="payment"]:checked').value,
-                products: cart,
-                total: calculateTotal(),
-                date: new Date().toLocaleString('ar-DZ')
+                customer: {
+                    name: document.getElementById('customer-name').value,
+                    phone: document.getElementById('customer-phone').value,
+                    email: document.getElementById('customer-email').value,
+                    wilaya: document.getElementById('customer-wilaya').value,
+                    address: document.getElementById('customer-address').value,
+                    notes: document.getElementById('customer-notes').value
+                },
+                products: cart.map(item => ({
+                    productId: item._id || item.id,
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity,
+                    image: item.image
+                })),
+                total: total,
+                payment: 'cash'
             };
             
-            // حفظ الطلب
-            saveOrder(orderData);
+            // محاولة الحفظ في MongoDB
+            try {
+                await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(orderData)
+                });
+            } catch (error) {
+                // حفظ محلي إذا فشل الاتصال
+                const orders = JSON.parse(localStorage.getItem('fibno_orders')) || [];
+                orderData._id = Date.now().toString();
+                orderData.status = 'pending';
+                orderData.createdAt = new Date().toISOString();
+                orders.unshift(orderData);
+                localStorage.setItem('fibno_orders', JSON.stringify(orders));
+            }
             
             // إرسال إلى واتساب
             sendToWhatsApp(orderData);
@@ -296,41 +323,32 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-function calculateTotal() {
-    const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const shipping = subtotal > 5000 ? 0 : 500;
-    return subtotal + shipping;
-}
-
-function saveOrder(orderData) {
-    const orders = JSON.parse(localStorage.getItem('fibno_orders')) || [];
-    orderData.id = Date.now();
-    orderData.status = 'pending';
-    orders.unshift(orderData);
-    localStorage.setItem('fibno_orders', JSON.stringify(orders));
-}
-
-function sendToWhatsApp(orderData) {
-    const settings = JSON.parse(localStorage.getItem('fibno_settings')) || {};
-    const whatsappNumber = settings.whatsapp || '213550000000';
+async function sendToWhatsApp(orderData) {
+    let whatsappNumber = '213550000000';
     
-    // تحضير رسالة الواتساب
+    try {
+        const response = await fetch('/api/settings');
+        if (response.ok) {
+            const settings = await response.json();
+            whatsappNumber = settings.whatsapp || whatsappNumber;
+        }
+    } catch (error) {
+        console.log('Using default whatsapp number');
+    }
+    
     let productsList = orderData.products.map(item => 
         `• ${item.name} ×${item.quantity} - ${formatPrice(item.price * item.quantity)}`
     ).join('\n');
     
     const message = `🛍️ *طلب جديد من FibNo*\n\n` +
-                   `👤 *العميل:* ${orderData.name}\n` +
-                   `📱 *الهاتف:* ${orderData.phone}\n` +
-                   `📍 *الولاية:* ${orderData.wilaya}\n` +
-                   `🏠 *العنوان:* ${orderData.address}\n` +
-                   `💳 *الدفع:* ${orderData.payment === 'cash' ? 'عند الاستلام' : 'بطاقة'}\n\n` +
+                   `👤 *العميل:* ${orderData.customer.name}\n` +
+                   `📱 *الهاتف:* ${orderData.customer.phone}\n` +
+                   `📍 *الولاية:* ${orderData.customer.wilaya}\n` +
+                   `🏠 *العنوان:* ${orderData.customer.address}\n\n` +
                    `📦 *المنتجات:*\n${productsList}\n\n` +
                    `💰 *الإجمالي:* ${formatPrice(orderData.total)}\n` +
-                   `📅 *التاريخ:* ${orderData.date}\n\n` +
-                   `📝 *ملاحظات:* ${orderData.notes || 'لا يوجد'}`;
+                   `📝 *ملاحظات:* ${orderData.customer.notes || 'لا يوجد'}`;
     
-    // فتح واتساب
     const encodedMessage = encodeURIComponent(message);
     const whatsappURL = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
     window.open(whatsappURL, '_blank');
@@ -359,21 +377,25 @@ function setupFilters() {
     
     if (!categoryFilter) return;
     
+    // التحقق من وجود فئة في الرابط
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlCategory = urlParams.get('category');
+    if (urlCategory) {
+        categoryFilter.value = urlCategory;
+    }
+    
     function applyFilters() {
         let filtered = [...products];
         
-        // تصفية الفئة
         const category = categoryFilter.value;
         if (category !== 'all') {
             filtered = filtered.filter(p => p.category === category);
         }
         
-        // تصفية السعر
         const maxPrice = parseInt(priceFilter.value);
         filtered = filtered.filter(p => p.price <= maxPrice);
         document.getElementById('price-value').textContent = formatPrice(maxPrice);
         
-        // البحث
         const searchTerm = searchInput.value.toLowerCase();
         if (searchTerm) {
             filtered = filtered.filter(p => 
@@ -382,7 +404,6 @@ function setupFilters() {
             );
         }
         
-        // الترتيب
         const sortBy = sortSelect.value;
         if (sortBy === 'price-asc') {
             filtered.sort((a, b) => a.price - b.price);
@@ -423,9 +444,14 @@ function setupMobileMenu() {
 }
 
 // ============ التهيئة ============
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     updateCartCount();
     setupMobileMenu();
+    
+    // تحميل المنتجات
+    document.getElementById('loading')?.style.display = 'block';
+    await loadProducts();
+    document.getElementById('loading')?.style.display = 'none';
     
     // الصفحة الرئيسية
     if (document.getElementById('featured-products')) {
