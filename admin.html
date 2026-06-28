@@ -87,9 +87,14 @@
                 <form id="settings-form" class="settings-form">
                     <div class="form-group">
                         <label>رقم الواتساب (مع مفتاح 213)</label>
-                        <input type="text" id="whatsapp-number" dir="ltr">
+                        <input type="text" id="whatsapp-number" dir="ltr" placeholder="213550000000">
                     </div>
-                    <button type="submit" class="cta-button">حفظ</button>
+                    <div class="form-group">
+                        <label>سعر صرف الدولار (دج)</label>
+                        <input type="number" id="exchange-rate-setting" value="135" min="0" step="1">
+                        <small>هذا السعر يظهر للزبائن في الحاسبة ونموذج الطلب</small>
+                    </div>
+                    <button type="submit" class="cta-button">حفظ الإعدادات</button>
                 </form>
             </div>
         </div>
@@ -122,6 +127,7 @@
                         <option value="#e94560">أحمر</option>
                         <option value="#fdcb6e">أصفر</option>
                         <option value="#6c5ce7">بنفسجي</option>
+                        <option value="#e17055">برتقالي</option>
                     </select>
                 </div>
                 <button type="submit" class="cta-button">حفظ</button>
