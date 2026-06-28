@@ -37,9 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
         await fetch('/api/settings', {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ whatsapp: document.getElementById('whatsapp-number').value })
+            body: JSON.stringify({
+                whatsapp: document.getElementById('whatsapp-number').value,
+                exchangeRate: parseInt(document.getElementById('exchange-rate-setting').value) || 135
+            })
         });
-        notify('✅ تم الحفظ');
+        notify('✅ تم حفظ الإعدادات');
     });
     
     document.getElementById('post-form')?.addEventListener('submit', (e) => {
@@ -86,25 +89,26 @@ function loadOrders() {
                 <p>📱 ${order.phone} | 📮 ${order.postOffice}</p>
                 <p>📍 ${order.commune} - ${order.wilaya}</p>
                 <p>💳 ${order.payment === 'baridi' ? 'بريدي موب' : 'CCP'}</p>
+                <p>💱 سعر الصرف: 1$ = ${order.exchangeRate || 135} دج</p>
             </div>
             <div style="background:#f8f9fa;padding:10px;border-radius:8px;margin:10px 0;">
                 ${order.products.map((p, i) => `
-                    <p style="margin:5px 0;">${i + 1}. <a href="${p.link}" target="_blank">رابط</a> | ${p.priceUSD} $ | ${p.notes || ''}</p>
+                    <p style="margin:5px 0;font-size:14px;">${i + 1}. <a href="${p.link}" target="_blank">رابط</a> | ${p.priceUSD.toFixed(2)} $ | ${p.notes || ''}</p>
                 `).join('')}
             </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
                 <div>
                     <p>💰 ${Math.round(order.grandTotal).toLocaleString('ar-DZ')} دج</p>
                     <p style="font-size:12px;color:#666;">${order.date}</p>
                 </div>
-                <div style="display:flex;gap:10px;">
-                    <select onchange="updateStatus(${order.id}, this.value)" style="padding:8px;border-radius:8px;">
-                        <option value="new" ${order.status==='new'?'selected':''}>🆕 جديد</option>
-                        <option value="contacted" ${order.status==='contacted'?'selected':''}>📞 تم التواصل</option>
-                        <option value="paid" ${order.status==='paid'?'selected':''}>✅ مدفوع</option>
-                        <option value="purchased" ${order.status==='purchased'?'selected':''}>🛒 تم الشراء</option>
-                        <option value="shipped" ${order.status==='shipped'?'selected':''}>📦 شحن للمكتب</option>
-                        <option value="delivered" ${order.status==='delivered'?'selected':''}>✅ استلم</option>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <select onchange="updateStatus(${order.id}, this.value)" style="padding:8px;border-radius:8px;border:1px solid #ddd;">
+                        <option value="new" ${order.status=='new'?'selected':''}>🆕 جديد</option>
+                        <option value="contacted" ${order.status=='contacted'?'selected':''}>📞 تم التواصل</option>
+                        <option value="paid" ${order.status=='paid'?'selected':''}>✅ مدفوع</option>
+                        <option value="purchased" ${order.status=='purchased'?'selected':''}>🛒 تم الشراء</option>
+                        <option value="shipped" ${order.status=='shipped'?'selected':''}>📦 شحن</option>
+                        <option value="delivered" ${order.status=='delivered'?'selected':''}>✅ استلم</option>
                     </select>
                     <a href="https://wa.me/${order.phone}" target="_blank" class="whatsapp-btn">💬</a>
                 </div>
@@ -137,10 +141,10 @@ function loadPostsList() {
     }
     
     container.innerHTML = posts.map(post => `
-        <div class="admin-post-item" style="background:${post.color || '#667eea'};color:white;padding:15px;border-radius:10px;margin-bottom:10px;">
+        <div style="background:${post.color || '#667eea'};color:white;padding:15px;border-radius:10px;margin-bottom:10px;">
             <h4>${post.title}</h4>
             <p>${post.content}</p>
-            ${post.link ? `<a href="${post.link}" target="_blank" style="color:#ffd700;">رابط</a>` : ''}
+            ${post.link ? `<a href="${post.link}" target="_blank" style="color:#ffd700;">🔗 رابط</a>` : ''}
             <small style="opacity:0.8;display:block;margin-top:5px;">${post.date}</small>
             <button onclick="deletePost('${post.id}')" style="background:#ff4757;color:white;border:none;padding:5px 15px;border-radius:5px;cursor:pointer;margin-top:10px;">🗑️ حذف</button>
         </div>
@@ -198,10 +202,11 @@ async function loadSettings() {
         const res = await fetch('/api/settings');
         const settings = await res.json();
         document.getElementById('whatsapp-number').value = settings.whatsapp || '213550000000';
+        document.getElementById('exchange-rate-setting').value = settings.exchangeRate || 135;
     } catch (e) {}
 }
 
-// ============ التبويبات ============
+// ============ تبويبات ============
 function switchTab(tab) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
