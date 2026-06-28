@@ -1,6 +1,20 @@
 // ============ المتغيرات ============
 let isLoggedIn = sessionStorage.getItem('fibno_admin_logged') === 'true';
 
+// ============ معاينة الصورة ============
+function previewImage(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('image-preview').src = e.target.result;
+            document.getElementById('image-preview').style.display = 'block';
+            document.getElementById('upload-placeholder').style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
 // ============ تهيئة لوحة التحكم ============
 document.addEventListener('DOMContentLoaded', () => {
     if (isLoggedIn) {
@@ -73,16 +87,21 @@ async function loadDashboardData() {
         document.getElementById('total-products').textContent = products.length;
         renderAdminProducts(products);
         
-        // تحميل الطلبات
+        // تحميل طلبات المتجر
         const ordersResponse = await fetch('/api/orders');
         const orders = await ordersResponse.json();
         document.getElementById('total-orders').textContent = orders.length;
-        document.getElementById('pending-orders').textContent = orders.filter(o => o.status === 'pending').length;
         
         const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
         document.getElementById('total-revenue').textContent = totalRevenue.toLocaleString('ar-DZ') + ' دج';
         
         renderAdminOrders(orders);
+        
+        // تحميل طلبات الوساطة
+        const serviceOrders = JSON.parse(localStorage.getItem('fibno_service_orders')) || [];
+        document.getElementById('total-service-orders').textContent = serviceOrders.length;
+        renderServiceOrders(serviceOrders);
+        
     } catch (error) {
         console.error('خطأ في تحميل البيانات:', error);
     }
@@ -109,7 +128,8 @@ function renderAdminProducts(products) {
     
     container.innerHTML = products.map(product => `
         <div class="admin-product-item">
-            <img src="${product.image || ''}" alt="${product.name}" class="admin-product-img">
+            <img src="${product.image || ''}" alt="${product.name}" class="admin-product-img"
+                 onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2770%27 height=%2770%27%3E%3Crect fill=%27%23ddd%27 width=%2770%27 height=%2770%27/%3E%3Ctext fill=%27%23999%27 x=%2750%25%27 y=%2750%25%27 text-anchor=%27middle%27 dy=%27.3em%27 font-size=%2730%27%3E📦%3C/text%3E%3C/svg%3E'">
             <div class="admin-product-info">
                 <h4>${product.name}</h4>
                 <p>${(product.price || 0).toLocaleString('ar-DZ')} دج | ${getCategoryName(product.category)}</p>
@@ -126,6 +146,8 @@ function showAddProduct() {
     document.getElementById('modal-title').textContent = 'إضافة منتج جديد';
     document.getElementById('product-form').reset();
     document.getElementById('product-id').value = '';
+    document.getElementById('image-preview').style.display = 'none';
+    document.getElementById('upload-placeholder').style.display = 'block';
     document.getElementById('product-modal').style.display = 'block';
 }
 
@@ -141,6 +163,12 @@ async function editProduct(productId) {
         document.getElementById('product-original-price').value = product.originalPrice || '';
         document.getElementById('product-category').value = product.category;
         document.getElementById('product-description').value = product.description || '';
+        
+        if (product.image) {
+            document.getElementById('image-preview').src = product.image;
+            document.getElementById('image-preview').style.display = 'block';
+            document.getElementById('upload-placeholder').style.display = 'none';
+        }
         
         document.getElementById('product-modal').style.display = 'block';
     } catch (error) {
@@ -163,7 +191,7 @@ async function saveProduct() {
     formData.append('category', document.getElementById('product-category').value);
     formData.append('description', document.getElementById('product-description').value);
     
-    const imageInput = document.getElementById('product-image');
+    const imageInput = document.getElementById('product-image-input');
     if (imageInput && imageInput.files[0]) {
         formData.append('image', imageInput.files[0]);
     }
@@ -199,7 +227,7 @@ async function deleteProduct(productId) {
     }
 }
 
-// ============ إدارة الطلبات ============
+// ============ طلبات المتجر ============
 function renderAdminOrders(orders) {
     const container = document.getElementById('admin-orders-list');
     if (!container) return;
@@ -212,7 +240,7 @@ function renderAdminOrders(orders) {
     container.innerHTML = orders.map(order => `
         <div class="order-card">
             <div class="order-header">
-                <span class="order-id">طلب #${order._id.slice(-6)}</span>
+                <span class="order-id">طلب #${order._id ? order._id.slice(-6) : ''}</span>
                 <span class="order-status ${order.status}">${getStatusText(order.status)}</span>
             </div>
             <div class="order-details">
@@ -220,7 +248,7 @@ function renderAdminOrders(orders) {
                 <p><strong>الهاتف:</strong> ${order.customer?.phone || ''}</p>
                 <p><strong>الولاية:</strong> ${order.customer?.wilaya || ''}</p>
                 <p><strong>الإجمالي:</strong> ${(order.total || 0).toLocaleString('ar-DZ')} دج</p>
-                <p><strong>التاريخ:</strong> ${new Date(order.createdAt).toLocaleString('ar-DZ')}</p>
+                <p><strong>التاريخ:</strong> ${order.createdAt ? new Date(order.createdAt).toLocaleString('ar-DZ') : ''}</p>
             </div>
             <div class="order-products">
                 ${order.products?.map(p => `${p.name} ×${p.quantity}`).join(' | ') || ''}
@@ -252,14 +280,40 @@ async function updateOrderStatus(orderId, status) {
     }
 }
 
-function getStatusText(status) {
-    const texts = {
-        pending: '⏳ قيد الانتظار',
-        confirmed: '✅ مؤكد',
-        shipped: '🚚 تم الشحن',
-        delivered: '📦 تم التسليم'
-    };
-    return texts[status] || status;
+// ============ طلبات الوساطة ============
+function renderServiceOrders(orders) {
+    const container = document.getElementById('admin-service-orders-list');
+    if (!container) return;
+    
+    if (orders.length === 0) {
+        container.innerHTML = '<p class="no-data">لا توجد طلبات وساطة</p>';
+        return;
+    }
+    
+    container.innerHTML = orders.map(order => `
+        <div class="order-card service-order">
+            <div class="order-header">
+                <span class="order-id">وساطة #${order.id ? order.id.toString().slice(-6) : ''}</span>
+                <span class="order-status pending">⏳ جديد</span>
+            </div>
+            <div class="order-details">
+                <p><strong>الاسم واللقب:</strong> ${order.firstName} ${order.lastName}</p>
+                <p><strong>الهاتف:</strong> ${order.phone}</p>
+                <p><strong>البلدية:</strong> ${order.commune}</p>
+                <p><strong>الولاية:</strong> ${order.wilaya}</p>
+                <p><strong>طريقة الدفع:</strong> ${getPaymentMethod(order.paymentMethod)}</p>
+                <p><strong>التاريخ:</strong> ${order.date}</p>
+            </div>
+            <div class="order-products">
+                <strong>الروابط:</strong><br>
+                ${order.links.map(link => `<a href="${link}" target="_blank" style="color:#3498db;">${link}</a>`).join('<br>')}
+            </div>
+            ${order.notes ? `<p><strong>ملاحظات:</strong> ${order.notes}</p>` : ''}
+            <div class="order-actions">
+                <a href="https://wa.me/${order.phone}" target="_blank" class="whatsapp-btn">💬 واتساب</a>
+            </div>
+        </div>
+    `).join('');
 }
 
 // ============ الإعدادات ============
@@ -300,6 +354,25 @@ function getCategoryName(cat) {
         home: 'منزل'
     };
     return names[cat] || cat;
+}
+
+function getStatusText(status) {
+    const texts = {
+        pending: '⏳ قيد الانتظار',
+        confirmed: '✅ مؤكد',
+        shipped: '🚚 تم الشحن',
+        delivered: '📦 تم التسليم'
+    };
+    return texts[status] || status;
+}
+
+function getPaymentMethod(method) {
+    const methods = {
+        ccp: '🏦 CCP (بريدي)',
+        cash: '💵 نقداً',
+        baridi: '📱 بريدي موب'
+    };
+    return methods[method] || method;
 }
 
 function showNotification(message, type = 'success') {
