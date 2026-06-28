@@ -18,6 +18,7 @@
             <ul class="nav-links">
                 <li><a href="index.html" class="active">الرئيسية</a></li>
                 <li><a href="products.html">المنتجات</a></li>
+                <li><a href="order-service.html">🚚 وساطة</a></li>
                 <li><a href="cart.html">سلة التسوق 🛒<span id="cart-count">0</span></a></li>
             </ul>
             <div class="hamburger">☰</div>
@@ -32,45 +33,31 @@
             <p>أفضل المنتجات بأسعار تنافسية في الجزائر</p>
             <div class="hero-buttons">
                 <a href="products.html" class="cta-button">تسوق الآن</a>
-                <a href="#categories" class="secondary-button">تصفح الفئات</a>
+                <a href="order-service.html" class="secondary-button">🚚 طلب وساطة</a>
             </div>
         </div>
     </header>
 
-    <!-- الفئات -->
-    <section id="categories" class="categories">
-        <h2>تسوق حسب الفئة</h2>
-        <div class="categories-grid">
-            <div class="category-card" onclick="window.location.href='products.html?category=electronics'">
-                <span class="category-icon">📱</span>
-                <h3>إلكترونيات</h3>
-                <p>هواتف، حواسيب، أجهزة لوحية</p>
-            </div>
-            <div class="category-card" onclick="window.location.href='products.html?category=clothing'">
-                <span class="category-icon">👕</span>
-                <h3>ملابس</h3>
-                <p>أزياء عصرية للجميع</p>
-            </div>
-            <div class="category-card" onclick="window.location.href='products.html?category=books'">
-                <span class="category-icon">📚</span>
-                <h3>كتب</h3>
-                <p>كتب تعليمية وثقافية</p>
-            </div>
-            <div class="category-card" onclick="window.location.href='products.html?category=home'">
-                <span class="category-icon">🏠</span>
-                <h3>منزل</h3>
-                <p>أثاث وديكورات منزلية</p>
-            </div>
-        </div>
-    </section>
-
     <!-- المنتجات المميزة -->
     <section class="featured-products">
         <div class="section-header">
-            <h2>منتجات مميزة</h2>
+            <h2>🔥 منتجات مميزة</h2>
             <a href="products.html" class="view-all">عرض الكل →</a>
         </div>
         <div class="products-grid" id="featured-products"></div>
+        <div id="loading-products" style="text-align:center;padding:40px;">جاري تحميل المنتجات...</div>
+    </section>
+
+    <!-- بانر الخدمات -->
+    <section class="services-banner">
+        <div class="service-highlight">
+            <span class="service-icon">🌍</span>
+            <div class="service-text">
+                <h3>خدمة الوساطة</h3>
+                <p>نشتري لك من AliExpress و Temu ونتكفل بالتوصيل</p>
+            </div>
+            <a href="order-service.html" class="cta-button">اطلب الآن</a>
+        </div>
     </section>
 
     <!-- الفوتر -->
@@ -89,6 +76,7 @@
                 <h4>روابط سريعة</h4>
                 <a href="index.html">الرئيسية</a>
                 <a href="products.html">المنتجات</a>
+                <a href="order-service.html">طلب وساطة</a>
                 <a href="cart.html">سلة التسوق</a>
             </div>
             <div class="footer-section">
