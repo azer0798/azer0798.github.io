@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>طلب وساطة - FibNo</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🌍%3C/text%3E%3C/svg%3E">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🛍️</span>
+                <span class="logo-text">FibNo</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html">الرئيسية</a></li>
+                <li><a href="products.html">المنتجات</a></li>
+                <li><a href="order-service.html" class="active">🚚 وساطة</a></li>
+                <li><a href="cart.html">سلة التسوق 🛒<span id="cart-count">0</span></a></li>
+            </ul>
+            <div class="hamburger">☰</div>
+        </div>
+    </nav>
+
+    <main class="service-page">
+        <!-- شرح الخدمة -->
+        <section class="service-header">
+            <h1>🌍 خدمة الوساطة</h1>
+            <p>نشتري لك من AliExpress و Temu ونتكفل بكل شيء حتى يصلك المنتج إلى باب منزلك</p>
+        </section>
+
+        <!-- المميزات -->
+        <section class="service-features">
+            <div class="service-feature">
+                <span>🛒</span>
+                <h3>أرسل لنا الروابط</h3>
+                <p>أرسل روابط المنتجات التي تريدها من AliExpress أو Temu</p>
+            </div>
+            <div class="service-feature">
+                <span>💳</span>
+                <h3>نحن نشتري لك</h3>
+                <p>نتكفل بعملية الشراء ونتابع الطلبية</p>
+            </div>
+            <div class="service-feature">
+                <span>✈️</span>
+                <h3>شحن سريع</h3>
+                <p>نستلم المنتج ونشحنه لك مباشرة</p>
+            </div>
+            <div class="service-feature">
+                <span>📦</span>
+                <h3>توصيل للباب</h3>
+                <p>يوصلك المنتج إلى باب منزلك في أي ولاية</p>
+            </div>
+        </section>
+
+        <!-- نموذج الطلب -->
+        <section class="service-form-section">
+            <h2>📝 نموذج طلب الوساطة</h2>
+            <p class="form-note">* جميع الحقول باللاتينية (باستثناء البلدية)</p>
+            
+            <form id="service-form" class="service-form">
+                <!-- الاسم واللقب باللاتينية -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>الاسم (باللاتينية) *</label>
+                        <input type="text" id="first-name" required 
+                               placeholder="Mohamed" dir="ltr"
+                               pattern="[A-Za-z\s]+" 
+                               title="الاسم بالحروف اللاتينية فقط">
+                    </div>
+                    <div class="form-group">
+                        <label>اللقب (باللاتينية) *</label>
+                        <input type="text" id="last-name" required 
+                               placeholder="Brahimi" dir="ltr"
+                               pattern="[A-Za-z\s]+" 
+                               title="اللقب بالحروف اللاتينية فقط">
+                    </div>
+                </div>
+
+                <!-- رقم الهاتف -->
+                <div class="form-group">
+                    <label>رقم الهاتف *</label>
+                    <input type="tel" id="phone" required 
+                           placeholder="0550 00 00 00" dir="ltr"
+                           pattern="0[5-7][0-9]{8}" 
+                           title="رقم هاتف جزائري صحيح">
+                </div>
+
+                <!-- البلدية والولاية -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>البلدية *</label>
+                        <input type="text" id="commune" required 
+                               placeholder="بئر مراد رايس">
+                    </div>
+                    <div class="form-group">
+                        <label>الولاية *</label>
+                        <select id="wilaya" required>
+                            <option value="">اختر الولاية</option>
+                            <option value="01 - أدرار">01 - أدرار</option>
+                            <option value="02 - الشلف">02 - الشلف</option>
+                            <option value="03 - الأغواط">03 - الأغواط</option>
+                            <option value="04 - أم البواقي">04 - أم البواقي</option>
+                            <option value="05 - باتنة">05 - باتنة</option>
+                            <option value="06 - بجاية">06 - بجاية</option>
+                            <option value="07 - بسكرة">07 - بسكرة</option>
+                            <option value="08 - بشار">08 - بشار</option>
+                            <option value="09 - البليدة">09 - البليدة</option>
+                            <option value="10 - البويرة">10 - البويرة</option>
+                            <option value="11 - تمنراست">11 - تمنراست</option>
+                            <option value="12 - تبسة">12 - تبسة</option>
+                            <option value="13 - تلمسان">13 - تلمسان</option>
+                            <option value="14 - تيارت">14 - تيارت</option>
+                            <option value="15 - تيزي وزو">15 - تيزي وزو</option>
+                            <option value="16 - الجزائر العاصمة">16 - الجزائر العاصمة</option>
+                            <option value="17 - الجلفة">17 - الجلفة</option>
+                            <option value="18 - جيجل">18 - جيجل</option>
+                            <option value="19 - سطيف">19 - سطيف</option>
+                            <option value="20 - سعيدة">20 - سعيدة</option>
+                            <option value="21 - سكيكدة">21 - سكيكدة</option>
+                            <option value="22 - سيدي بلعباس">22 - سيدي بلعباس</option>
+                            <option value="23 - عنابة">23 - عنابة</option>
+                            <option value="24 - قالمة">24 - قالمة</option>
+                            <option value="25 - قسنطينة">25 - قسنطينة</option>
+                            <option value="26 - المدية">26 - المدية</option>
+                            <option value="27 - مستغانم">27 - مستغانم</option>
+                            <option value="28 - المسيلة">28 - المسيلة</option>
+                            <option value="29 - معسكر">29 - معسكر</option>
+                            <option value="30 - ورقلة">30 - ورقلة</option>
+                            <option value="31 - وهران">31 - وهران</option>
+                            <option value="32 - البيض">32 - البيض</option>
+                            <option value="33 - اليزي">33 - اليزي</option>
+                            <option value="34 - برج بوعريريج">34 - برج بوعريريج</option>
+                            <option value="35 - بومرداس">35 - بومرداس</option>
+                            <option value="36 - الطارف">36 - الطارف</option>
+                            <option value="37 - تندوف">37 - تندوف</option>
+                            <option value="38 - تيسمسيلت">38 - تيسمسيلت</option>
+                            <option value="39 - الوادي">39 - الوادي</option>
+                            <option value="40 - خنشلة">40 - خنشلة</option>
+                            <option value="41 - سوق أهراس">41 - سوق أهراس</option>
+                            <option value="42 - تيبازة">42 - تيبازة</option>
+                            <option value="43 - ميلة">43 - ميلة</option>
+                            <option value="44 - عين الدفلى">44 - عين الدفلى</option>
+                            <option value="45 - النعامة">45 - النعامة</option>
+                            <option value="46 - عين تموشنت">46 - عين تموشنت</option>
+                            <option value="47 - غرداية">47 - غرداية</option>
+                            <option value="48 - غليزان">48 - غليزان</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- روابط المنتجات -->
+                <div class="form-group">
+                    <label>روابط المنتجات (رابط في كل سطر) *</label>
+                    <textarea id="product-links" required 
+                              placeholder="https://www.aliexpress.com/item/...
+https://www.temu.com/product/..." 
+                              dir="ltr" rows="4"></textarea>
+                    <small>انسخ روابط المنتجات من AliExpress أو Temu، كل رابط في سطر</small>
+                </div>
+
+                <!-- طريقة الدفع -->
+                <div class="form-group">
+                    <label>طريقة الدفع *</label>
+                    <div class="payment-methods">
+                        <label class="payment-option">
+                            <input type="radio" name="payment-method" value="ccp" checked>
+                            <span>🏦 CCP (بريدي)</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment-method" value="cash">
+                            <span>💵 نقداً عند الاستلام (في الجزائر العاصمة فقط)</span>
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment-method" value="baridi">
+                            <span>📱 بريدي موب</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- ملاحظات -->
+                <div class="form-group">
+                    <label>ملاحظات إضافية</label>
+                    <textarea id="notes" placeholder="أي تفاصيل إضافية تريد إضافتها..." rows="3"></textarea>
+                </div>
+
+                <button type="submit" class="checkout-btn">📤 إرسال الطلب</button>
+            </form>
+
+            <!-- رسالة نجاح -->
+            <div id="success-message" class="success-message" style="display: none;">
+                <span class="success-icon">✅</span>
+                <h3>تم إرسال طلبك بنجاح!</h3>
+                <p>سنقوم بالتواصل معك في أقرب وقت عبر الهاتف لتأكيد الطلب</p>
+                <a href="index.html" class="cta-button">العودة للرئيسية</a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="footer-bottom">
+            <p>© 2024 FibNo. جميع الحقوق محفوظة</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+                              </html>
