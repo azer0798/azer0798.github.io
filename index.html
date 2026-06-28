@@ -19,7 +19,6 @@
                 <li><a href="index.html" class="active">الرئيسية</a></li>
                 <li><a href="products.html">المنتجات</a></li>
                 <li><a href="cart.html">سلة التسوق 🛒<span id="cart-count">0</span></a></li>
-                <li><a href="admin.html" class="admin-link">👑 الأدمن</a></li>
             </ul>
             <div class="hamburger">☰</div>
         </div>
@@ -38,50 +37,26 @@
         </div>
     </header>
 
-    <!-- المميزات -->
-    <section class="features">
-        <div class="feature-card">
-            <div class="feature-icon">🚚</div>
-            <h3>توصيل سريع</h3>
-            <p>توصيل لجميع ولايات الجزائر</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">💳</div>
-            <h3>دفع آمن</h3>
-            <p>الدفع عند الاستلام أو عبر البطاقة</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">🔄</div>
-            <h3>استرجاع سهل</h3>
-            <p>سياسة استرجاع خلال 14 يوم</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon">🎯</div>
-            <h3>منتجات أصلية</h3>
-            <p>جميع المنتجات مضمونة 100%</p>
-        </div>
-    </section>
-
     <!-- الفئات -->
     <section id="categories" class="categories">
         <h2>تسوق حسب الفئة</h2>
         <div class="categories-grid">
-            <div class="category-card">
+            <div class="category-card" onclick="window.location.href='products.html?category=electronics'">
                 <span class="category-icon">📱</span>
                 <h3>إلكترونيات</h3>
                 <p>هواتف، حواسيب، أجهزة لوحية</p>
             </div>
-            <div class="category-card">
+            <div class="category-card" onclick="window.location.href='products.html?category=clothing'">
                 <span class="category-icon">👕</span>
                 <h3>ملابس</h3>
                 <p>أزياء عصرية للجميع</p>
             </div>
-            <div class="category-card">
+            <div class="category-card" onclick="window.location.href='products.html?category=books'">
                 <span class="category-icon">📚</span>
                 <h3>كتب</h3>
                 <p>كتب تعليمية وثقافية</p>
             </div>
-            <div class="category-card">
+            <div class="category-card" onclick="window.location.href='products.html?category=home'">
                 <span class="category-icon">🏠</span>
                 <h3>منزل</h3>
                 <p>أثاث وديكورات منزلية</p>
@@ -96,26 +71,6 @@
             <a href="products.html" class="view-all">عرض الكل →</a>
         </div>
         <div class="products-grid" id="featured-products"></div>
-    </section>
-
-    <!-- إحصائيات -->
-    <section class="stats">
-        <div class="stat-item">
-            <span class="stat-number">+5000</span>
-            <span class="stat-label">منتج</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-number">+1000</span>
-            <span class="stat-label">عميل سعيد</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-number">48</span>
-            <span class="stat-label">ولاية</span>
-        </div>
-        <div class="stat-item">
-            <span class="stat-number">24/7</span>
-            <span class="stat-label">دعم متواصل</span>
-        </div>
     </section>
 
     <!-- الفوتر -->
