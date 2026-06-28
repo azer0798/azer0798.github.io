@@ -3,23 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FibNo - المتجر الإلكتروني</title>
+    <title>FibNo - وساطة شراء من AliExpress</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🛍️%3C/text%3E%3C/svg%3E">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23667eea'/%3E%3Ctext x='50' y='65' text-anchor='middle' fill='white' font-size='50'%3E🌍%3C/text%3E%3C/svg%3E">
 </head>
 <body>
-    <!-- شريط التنقل -->
     <nav class="navbar">
         <div class="container">
             <a href="index.html" class="logo">
-                <span class="logo-icon">🛍️</span>
+                <span class="logo-icon">🌍</span>
                 <span class="logo-text">FibNo</span>
             </a>
             <ul class="nav-links">
                 <li><a href="index.html" class="active">الرئيسية</a></li>
-                <li><a href="products.html">المنتجات</a></li>
-                <li><a href="order-service.html">🚚 وساطة</a></li>
-                <li><a href="cart.html">سلة التسوق 🛒<span id="cart-count">0</span></a></li>
+                <li><a href="order.html">📝 تقديم طلب</a></li>
             </ul>
             <div class="hamburger">☰</div>
         </div>
@@ -28,66 +25,102 @@
     <!-- القسم الرئيسي -->
     <header class="hero">
         <div class="hero-content">
-            <div class="hero-badge">🔥 توصيل مجاني للطلبات فوق 5000 دج</div>
-            <h1>مرحباً بك في <span class="brand-name">FibNo</span></h1>
-            <p>أفضل المنتجات بأسعار تنافسية في الجزائر</p>
+            <div class="hero-badge">🌍 وساطة شراء من AliExpress</div>
+            <h1>نشتري لك من <span class="brand-name">AliExpress</span> ونوصله لأقرب بريد</h1>
+            <p>عمولة ثابتة 25% فقط | شحن سريع | دفع آمن عبر بريدي موب أو CCP</p>
             <div class="hero-buttons">
-                <a href="products.html" class="cta-button">تسوق الآن</a>
-                <a href="order-service.html" class="secondary-button">🚚 طلب وساطة</a>
+                <a href="order.html" class="cta-button">📝 اطلب الآن</a>
+                <a href="#how-it-works" class="secondary-button">كيف نعمل؟</a>
             </div>
         </div>
     </header>
 
-    <!-- المنتجات المميزة -->
-    <section class="featured-products">
-        <div class="section-header">
-            <h2>🔥 منتجات مميزة</h2>
-            <a href="products.html" class="view-all">عرض الكل →</a>
+    <!-- كيف نعمل -->
+    <section id="how-it-works" class="how-it-works">
+        <h2>🚀 كيف تشتري من خلالنا؟</h2>
+        <div class="steps">
+            <div class="step">
+                <div class="step-number">1</div>
+                <span class="step-icon">🔍</span>
+                <h3>اختر منتجاتك</h3>
+                <p>تصفح AliExpress وانسخ روابط المنتجات</p>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <span class="step-icon">📋</span>
+                <h3>أرسل الطلب</h3>
+                <p>املأ بياناتك وأرسل الروابط مع السعر</p>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <span class="step-icon">💬</span>
+                <h3>نؤكد وندفع</h3>
+                <p>نتواصل معك لتأكيد السعر والإجمالي</p>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <span class="step-icon">📦</span>
+                <h3>نشتري ونشحن</h3>
+                <p>نشتري المنتج ونشحنه لأقرب مركز بريد</p>
+            </div>
         </div>
-        <div class="products-grid" id="featured-products"></div>
-        <div id="loading-products" style="text-align:center;padding:40px;">جاري تحميل المنتجات...</div>
     </section>
 
-    <!-- بانر الخدمات -->
-    <section class="services-banner">
-        <div class="service-highlight">
-            <span class="service-icon">🌍</span>
-            <div class="service-text">
-                <h3>خدمة الوساطة</h3>
-                <p>نشتري لك من AliExpress و Temu ونتكفل بالتوصيل</p>
+    <!-- حاسبة السعر -->
+    <section class="calculator-section">
+        <h2>🧮 حاسبة السعر</h2>
+        <p style="text-align:center;color:#666;margin-bottom:20px;">عمولة ثابتة 25% على سعر المنتج</p>
+        <div class="calculator">
+            <div class="calc-row">
+                <div class="calc-group">
+                    <label>سعر المنتج بالدولار $</label>
+                    <input type="number" id="product-price" placeholder="0" min="0" step="0.01">
+                </div>
+                <div class="calc-group">
+                    <label>سعر الصرف (دج/دولار)</label>
+                    <input type="number" id="exchange-rate" value="135" min="0">
+                </div>
             </div>
-            <a href="order-service.html" class="cta-button">اطلب الآن</a>
+            <div class="calc-result">
+                <div class="result-row">
+                    <span>سعر المنتج بالدينار:</span>
+                    <span id="price-dzd">0 دج</span>
+                </div>
+                <div class="result-row">
+                    <span>عمولة الوساطة (25%):</span>
+                    <span id="commission">0 دج</span>
+                </div>
+                <div class="result-row total">
+                    <span>الإجمالي:</span>
+                    <span id="total-price">0 دج</span>
+                </div>
+            </div>
         </div>
+    </section>
+
+    <!-- المنشورات -->
+    <section class="posts-section" id="posts-section">
+        <h2>📢 آخر التحديثات</h2>
+        <div class="posts-grid" id="posts-container"></div>
     </section>
 
     <!-- الفوتر -->
     <footer>
         <div class="footer-content">
             <div class="footer-section">
-                <h3>FibNo</h3>
-                <p>متجرك الإلكتروني الموثوق في الجزائر</p>
-                <div class="social-links">
-                    <a href="#">📱</a>
-                    <a href="#">📘</a>
-                    <a href="#">📸</a>
-                </div>
-            </div>
-            <div class="footer-section">
-                <h4>روابط سريعة</h4>
-                <a href="index.html">الرئيسية</a>
-                <a href="products.html">المنتجات</a>
-                <a href="order-service.html">طلب وساطة</a>
-                <a href="cart.html">سلة التسوق</a>
+                <h3>🌍 FibNo</h3>
+                <p>وساطة شراء من AliExpress</p>
             </div>
             <div class="footer-section">
                 <h4>تواصل معنا</h4>
-                <p>📧 contact@fibno.dz</p>
-                <p>📞 0550 00 00 00</p>
-                <p>📍 الجزائر</p>
+                <p>📧 <a href="mailto:contact@fibno.dz" style="color:white;">contact@fibno.dz</a></p>
             </div>
         </div>
         <div class="footer-bottom">
-            <p>© 2024 FibNo. جميع الحقوق محفوظة</p>
+            <p>© 2026 FibNo. جميع الحقوق محفوظة</p>
         </div>
     </footer>
 
