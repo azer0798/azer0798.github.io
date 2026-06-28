@@ -1,9 +1,4 @@
-// ============ المصادقة ============
-const ADMIN_CREDENTIALS = {
-    username: 'admin',
-    password: 'admin123'
-};
-
+// ============ المتغيرات ============
 let isLoggedIn = sessionStorage.getItem('fibno_admin_logged') === 'true';
 
 // ============ تهيئة لوحة التحكم ============
@@ -16,19 +11,30 @@ document.addEventListener('DOMContentLoaded', () => {
     // نموذج تسجيل الدخول
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
-        loginForm.addEventListener('submit', (e) => {
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const username = document.getElementById('admin-username').value;
             const password = document.getElementById('admin-password').value;
             
-            if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
-                isLoggedIn = true;
-                sessionStorage.setItem('fibno_admin_logged', 'true');
-                showDashboard();
-                loadDashboardData();
-                showNotification('✅ تم تسجيل الدخول بنجاح');
-            } else {
-                showNotification('❌ اسم المستخدم أو كلمة المرور خطأ', 'error');
+            try {
+                const response = await fetch('/api/admin/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    isLoggedIn = true;
+                    sessionStorage.setItem('fibno_admin_logged', 'true');
+                    showDashboard();
+                    loadDashboardData();
+                    showNotification('✅ تم تسجيل الدخول بنجاح');
+                } else {
+                    showNotification('❌ كلمة المرور غير صحيحة', 'error');
+                }
+            } catch (error) {
+                showNotification('❌ خطأ في الاتصال', 'error');
             }
         });
     }
@@ -37,18 +43,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const settingsForm = document.getElementById('settings-form');
     if (settingsForm) {
         loadSettings();
-        settingsForm.addEventListener('submit', (e) => {
+        settingsForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            saveSettings();
+            await saveSettings();
         });
     }
     
     // نموذج المنتج
     const productForm = document.getElementById('product-form');
     if (productForm) {
-        productForm.addEventListener('submit', (e) => {
+        productForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            saveProduct();
+            await saveProduct();
         });
     }
 });
@@ -59,30 +65,34 @@ function showDashboard() {
 }
 
 // ============ تحميل البيانات ============
-function loadDashboardData() {
-    // تحميل المنتجات
-    const products = JSON.parse(localStorage.getItem('fibno_products')) || [];
-    document.getElementById('total-products').textContent = products.length;
-    renderAdminProducts(products);
-    
-    // تحميل الطلبات
-    const orders = JSON.parse(localStorage.getItem('fibno_orders')) || [];
-    document.getElementById('total-orders').textContent = orders.length;
-    document.getElementById('pending-orders').textContent = orders.filter(o => o.status === 'pending').length;
-    
-    const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
-    document.getElementById('total-revenue').textContent = totalRevenue.toLocaleString('ar-DZ') + ' دج';
-    
-    renderAdminOrders(orders);
+async function loadDashboardData() {
+    try {
+        // تحميل المنتجات
+        const productsResponse = await fetch('/api/products');
+        const products = await productsResponse.json();
+        document.getElementById('total-products').textContent = products.length;
+        renderAdminProducts(products);
+        
+        // تحميل الطلبات
+        const ordersResponse = await fetch('/api/orders');
+        const orders = await ordersResponse.json();
+        document.getElementById('total-orders').textContent = orders.length;
+        document.getElementById('pending-orders').textContent = orders.filter(o => o.status === 'pending').length;
+        
+        const totalRevenue = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+        document.getElementById('total-revenue').textContent = totalRevenue.toLocaleString('ar-DZ') + ' دج';
+        
+        renderAdminOrders(orders);
+    } catch (error) {
+        console.error('خطأ في تحميل البيانات:', error);
+    }
 }
 
 // ============ التبويبات ============
 function switchTab(tabName) {
-    // تحديث الأزرار
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
     event.target.classList.add('active');
     
-    // تحديث المحتوى
     document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
     document.getElementById(tabName + '-tab').classList.add('active');
 }
@@ -92,16 +102,21 @@ function renderAdminProducts(products) {
     const container = document.getElementById('admin-products-list');
     if (!container) return;
     
+    if (products.length === 0) {
+        container.innerHTML = '<p class="no-data">لا توجد منتجات</p>';
+        return;
+    }
+    
     container.innerHTML = products.map(product => `
         <div class="admin-product-item">
-            <img src="${product.image}" alt="${product.name}" class="admin-product-img">
+            <img src="${product.image || ''}" alt="${product.name}" class="admin-product-img">
             <div class="admin-product-info">
                 <h4>${product.name}</h4>
-                <p>${product.price.toLocaleString('ar-DZ')} دج | ${getCategoryName(product.category)}</p>
+                <p>${(product.price || 0).toLocaleString('ar-DZ')} دج | ${getCategoryName(product.category)}</p>
             </div>
             <div class="admin-product-actions">
-                <button onclick="editProduct(${product.id})" class="edit-btn">✏️ تعديل</button>
-                <button onclick="deleteProduct(${product.id})" class="delete-btn">🗑️ حذف</button>
+                <button onclick="editProduct('${product._id}')" class="edit-btn">✏️ تعديل</button>
+                <button onclick="deleteProduct('${product._id}')" class="delete-btn">🗑️ حذف</button>
             </div>
         </div>
     `).join('');
@@ -114,65 +129,74 @@ function showAddProduct() {
     document.getElementById('product-modal').style.display = 'block';
 }
 
-function editProduct(productId) {
-    const products = JSON.parse(localStorage.getItem('fibno_products')) || [];
-    const product = products.find(p => p.id === productId);
-    if (!product) return;
-    
-    document.getElementById('modal-title').textContent = 'تعديل المنتج';
-    document.getElementById('product-id').value = product.id;
-    document.getElementById('product-name').value = product.name;
-    document.getElementById('product-price').value = product.price;
-    document.getElementById('product-original-price').value = product.originalPrice || '';
-    document.getElementById('product-category').value = product.category;
-    document.getElementById('product-description').value = product.description || '';
-    document.getElementById('product-image').value = product.image || '';
-    
-    document.getElementById('product-modal').style.display = 'block';
+async function editProduct(productId) {
+    try {
+        const response = await fetch(`/api/products/${productId}`);
+        const product = await response.json();
+        
+        document.getElementById('modal-title').textContent = 'تعديل المنتج';
+        document.getElementById('product-id').value = product._id;
+        document.getElementById('product-name').value = product.name;
+        document.getElementById('product-price').value = product.price;
+        document.getElementById('product-original-price').value = product.originalPrice || '';
+        document.getElementById('product-category').value = product.category;
+        document.getElementById('product-description').value = product.description || '';
+        
+        document.getElementById('product-modal').style.display = 'block';
+    } catch (error) {
+        showNotification('❌ خطأ في تحميل المنتج', 'error');
+    }
 }
 
 function closeProductModal() {
     document.getElementById('product-modal').style.display = 'none';
 }
 
-function saveProduct() {
-    const products = JSON.parse(localStorage.getItem('fibno_products')) || [];
+async function saveProduct() {
     const productId = document.getElementById('product-id').value;
+    const isEdit = productId !== '';
     
-    const productData = {
-        id: productId ? parseInt(productId) : Date.now(),
-        name: document.getElementById('product-name').value,
-        price: parseInt(document.getElementById('product-price').value),
-        originalPrice: document.getElementById('product-original-price').value 
-            ? parseInt(document.getElementById('product-original-price').value) 
-            : null,
-        category: document.getElementById('product-category').value,
-        description: document.getElementById('product-description').value,
-        image: document.getElementById('product-image').value || 
-            `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='250' height='250'%3E%3Crect fill='%23ddd' width='250' height='250'/%3E%3Ctext fill='%23999' x='50%25' y='50%25' text-anchor='middle' dy='.3em' font-size='80'%3E📦%3C/text%3E%3C/svg%3E`
-    };
+    const formData = new FormData();
+    formData.append('name', document.getElementById('product-name').value);
+    formData.append('price', document.getElementById('product-price').value);
+    formData.append('originalPrice', document.getElementById('product-original-price').value);
+    formData.append('category', document.getElementById('product-category').value);
+    formData.append('description', document.getElementById('product-description').value);
     
-    if (productId) {
-        const index = products.findIndex(p => p.id === parseInt(productId));
-        products[index] = productData;
-    } else {
-        products.push(productData);
+    const imageInput = document.getElementById('product-image');
+    if (imageInput && imageInput.files[0]) {
+        formData.append('image', imageInput.files[0]);
     }
     
-    localStorage.setItem('fibno_products', JSON.stringify(products));
-    closeProductModal();
-    loadDashboardData();
-    showNotification('✅ تم حفظ المنتج بنجاح');
+    try {
+        const url = isEdit ? `/api/products/${productId}` : '/api/products';
+        const method = isEdit ? 'PUT' : 'POST';
+        
+        const response = await fetch(url, {
+            method: method,
+            body: formData
+        });
+        
+        if (response.ok) {
+            closeProductModal();
+            loadDashboardData();
+            showNotification('✅ تم حفظ المنتج بنجاح');
+        }
+    } catch (error) {
+        showNotification('❌ خطأ في حفظ المنتج', 'error');
+    }
 }
 
-function deleteProduct(productId) {
+async function deleteProduct(productId) {
     if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
     
-    let products = JSON.parse(localStorage.getItem('fibno_products')) || [];
-    products = products.filter(p => p.id !== productId);
-    localStorage.setItem('fibno_products', JSON.stringify(products));
-    loadDashboardData();
-    showNotification('🗑️ تم حذف المنتج');
+    try {
+        await fetch(`/api/products/${productId}`, { method: 'DELETE' });
+        loadDashboardData();
+        showNotification('🗑️ تم حذف المنتج');
+    } catch (error) {
+        showNotification('❌ خطأ في حذف المنتج', 'error');
+    }
 }
 
 // ============ إدارة الطلبات ============
@@ -188,42 +212,43 @@ function renderAdminOrders(orders) {
     container.innerHTML = orders.map(order => `
         <div class="order-card">
             <div class="order-header">
-                <span class="order-id">طلب #${order.id}</span>
+                <span class="order-id">طلب #${order._id.slice(-6)}</span>
                 <span class="order-status ${order.status}">${getStatusText(order.status)}</span>
             </div>
             <div class="order-details">
-                <p><strong>العميل:</strong> ${order.name}</p>
-                <p><strong>الهاتف:</strong> ${order.phone}</p>
-                <p><strong>الولاية:</strong> ${order.wilaya}</p>
+                <p><strong>العميل:</strong> ${order.customer?.name || ''}</p>
+                <p><strong>الهاتف:</strong> ${order.customer?.phone || ''}</p>
+                <p><strong>الولاية:</strong> ${order.customer?.wilaya || ''}</p>
                 <p><strong>الإجمالي:</strong> ${(order.total || 0).toLocaleString('ar-DZ')} دج</p>
-                <p><strong>التاريخ:</strong> ${order.date}</p>
+                <p><strong>التاريخ:</strong> ${new Date(order.createdAt).toLocaleString('ar-DZ')}</p>
             </div>
             <div class="order-products">
-                ${order.products.map(p => `
-                    <span>${p.name} ×${p.quantity}</span>
-                `).join(' | ')}
+                ${order.products?.map(p => `${p.name} ×${p.quantity}`).join(' | ') || ''}
             </div>
             <div class="order-actions">
-                <select onchange="updateOrderStatus(${order.id}, this.value)" class="status-select">
-                    <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>قيد الانتظار</option>
-                    <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>مؤكد</option>
-                    <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>تم الشحن</option>
-                    <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>تم التسليم</option>
+                <select onchange="updateOrderStatus('${order._id}', this.value)" class="status-select">
+                    <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>⏳ قيد الانتظار</option>
+                    <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>✅ مؤكد</option>
+                    <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>🚚 تم الشحن</option>
+                    <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>📦 تم التسليم</option>
                 </select>
-                <a href="https://wa.me/${order.phone}" target="_blank" class="whatsapp-btn">💬 واتساب</a>
+                <a href="https://wa.me/${order.customer?.phone || ''}" target="_blank" class="whatsapp-btn">💬 واتساب</a>
             </div>
         </div>
     `).join('');
 }
 
-function updateOrderStatus(orderId, status) {
-    const orders = JSON.parse(localStorage.getItem('fibno_orders')) || [];
-    const order = orders.find(o => o.id === orderId);
-    if (order) {
-        order.status = status;
-        localStorage.setItem('fibno_orders', JSON.stringify(orders));
+async function updateOrderStatus(orderId, status) {
+    try {
+        await fetch(`/api/orders/${orderId}/status`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status })
+        });
         loadDashboardData();
         showNotification('✅ تم تحديث حالة الطلب');
+    } catch (error) {
+        showNotification('❌ خطأ في تحديث الطلب', 'error');
     }
 }
 
@@ -238,21 +263,32 @@ function getStatusText(status) {
 }
 
 // ============ الإعدادات ============
-function loadSettings() {
-    const settings = JSON.parse(localStorage.getItem('fibno_settings')) || {};
-    document.getElementById('whatsapp-number').value = settings.whatsapp || '213550000000';
-    document.getElementById('store-name').value = settings.storeName || 'FibNo';
+async function loadSettings() {
+    try {
+        const response = await fetch('/api/settings');
+        const settings = await response.json();
+        document.getElementById('whatsapp-number').value = settings.whatsapp || '213550000000';
+        document.getElementById('store-name').value = settings.storeName || 'FibNo';
+    } catch (error) {
+        console.error('خطأ في تحميل الإعدادات:', error);
+    }
 }
 
-function saveSettings() {
-    const settings = {
-        whatsapp: document.getElementById('whatsapp-number').value,
-        storeName: document.getElementById('store-name').value,
-        currency: 'دج'
-    };
-    
-    localStorage.setItem('fibno_settings', JSON.stringify(settings));
-    showNotification('✅ تم حفظ الإعدادات بنجاح');
+async function saveSettings() {
+    try {
+        await fetch('/api/settings', {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                whatsapp: document.getElementById('whatsapp-number').value,
+                storeName: document.getElementById('store-name').value,
+                currency: 'دج'
+            })
+        });
+        showNotification('✅ تم حفظ الإعدادات بنجاح');
+    } catch (error) {
+        showNotification('❌ خطأ في حفظ الإعدادات', 'error');
+    }
 }
 
 // ============ دوال مساعدة ============
@@ -277,4 +313,4 @@ function showNotification(message, type = 'success') {
         notification.style.animation = 'slideOut 0.3s ease';
         setTimeout(() => notification.remove(), 300);
     }, 3000);
-      }
+        }
