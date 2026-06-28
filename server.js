@@ -15,9 +15,7 @@ let settings = {
     storeName: 'FibNo'
 };
 
-app.get('/api/settings', (req, res) => {
-    res.json(settings);
-});
+app.get('/api/settings', (req, res) => res.json(settings));
 
 app.put('/api/settings', (req, res) => {
     settings = { ...settings, ...req.body };
@@ -32,15 +30,30 @@ app.post('/api/admin/login', (req, res) => {
     }
 });
 
+// المسارات الرئيسية
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/index.html', (req, res) => res.redirect('/'));
+
+// صفحة الطلب - هذا المهم
 app.get('/order', (req, res) => res.sendFile(path.join(__dirname, 'order.html')));
 app.get('/order.html', (req, res) => res.redirect('/order'));
+
+// لوحة التحكم
 app.get(`/${ADMIN_PATH}`, (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
 app.get('/admin', (req, res) => res.redirect(`/${ADMIN_PATH}`));
-app.use((req, res) => res.status(404).sendFile(path.join(__dirname, 'index.html')));
+app.get('/admin.html', (req, res) => res.redirect(`/${ADMIN_PATH}`));
+
+// 404
+app.use((req, res) => {
+    res.status(404).sendFile(path.join(__dirname, 'index.html'));
+});
 
 app.listen(PORT, () => {
-    console.log(`🚀 FibNo running on http://localhost:${PORT}`);
-    console.log(`👑 Admin: http://localhost:${PORT}/${ADMIN_PATH}`);
-    console.log(`💱 Exchange Rate: ${settings.exchangeRate} DZD/$`);
+    console.log('='.repeat(50));
+    console.log(`🌍 FibNo - وساطة AliExpress و Temu`);
+    console.log(`📡 http://localhost:${PORT}`);
+    console.log(`📝 طلب: http://localhost:${PORT}/order`);
+    console.log(`👑 تحكم: http://localhost:${PORT}/${ADMIN_PATH}`);
+    console.log(`💱 الصرف: ${settings.exchangeRate} دج/$`);
+    console.log('='.repeat(50));
 });
