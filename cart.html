@@ -3,48 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سلة التسوق - متجري الإلكتروني</title>
+    <title>سلة التسوق - FibNo</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🛍️%3C/text%3E%3C/svg%3E">
 </head>
 <body>
     <nav class="navbar">
         <div class="container">
-            <a href="index.html" class="logo">🛍️ متجري</a>
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🛍️</span>
+                <span class="logo-text">FibNo</span>
+            </a>
             <ul class="nav-links">
                 <li><a href="index.html">الرئيسية</a></li>
                 <li><a href="products.html">المنتجات</a></li>
-                <li><a href="cart.html" class="active">سلة التسوق (<span id="cart-count">0</span>)</a></li>
+                <li><a href="cart.html" class="active">سلة التسوق 🛒<span id="cart-count">0</span></a></li>
+                <li><a href="admin.html" class="admin-link">👑 الأدمن</a></li>
             </ul>
             <div class="hamburger">☰</div>
         </div>
     </nav>
 
     <main class="cart-page">
-        <h2>سلة التسوق</h2>
+        <h2>🛒 سلة التسوق</h2>
         <div id="cart-items"></div>
         <div id="cart-empty" style="display: none;">
-            <p>السلة فارغة</p>
-            <a href="products.html" class="cta-button">تصفح المنتجات</a>
+            <div class="empty-cart">
+                <span class="empty-icon">🛒</span>
+                <p>السلة فارغة</p>
+                <a href="products.html" class="cta-button">تصفح المنتجات</a>
+            </div>
         </div>
         <div id="cart-summary" style="display: none;">
             <div class="coupon-section">
-                <input type="text" id="coupon-input" placeholder="كود الخصم">
-                <button onclick="applyCoupon()">تطبيق</button>
+                <h3>كود الخصم</h3>
+                <div class="coupon-input-group">
+                    <input type="text" id="coupon-input" placeholder="أدخل كود الخصم">
+                    <button onclick="applyCoupon()">تطبيق</button>
+                </div>
+                <p class="coupon-hint">جرب: WELCOME10 أو SAVE20</p>
             </div>
             <div class="totals">
-                <p>المجموع الفرعي: <span id="subtotal">0</span> ريال</p>
-                <p>الخصم: <span id="discount">0</span> ريال</p>
-                <p>الشحن: <span id="shipping">30</span> ريال</p>
-                <h3>الإجمالي: <span id="total">0</span> ريال</h3>
+                <div class="total-row">
+                    <span>المجموع الفرعي:</span>
+                    <span id="subtotal">0 دج</span>
+                </div>
+                <div class="total-row">
+                    <span>الخصم:</span>
+                    <span id="discount" class="discount-amount">0 دج</span>
+                </div>
+                <div class="total-row">
+                    <span>الشحن:</span>
+                    <span id="shipping">0 دج</span>
+                </div>
+                <div class="total-row grand-total">
+                    <span>الإجمالي:</span>
+                    <span id="total">0 دج</span>
+                </div>
+                <p class="shipping-info">🚚 توصيل مجاني للطلبات فوق 5000 دج</p>
             </div>
-            <button onclick="checkout()" class="checkout-btn">إتمام الشراء</button>
+            <button onclick="checkout()" class="checkout-btn">💳 إتمام الشراء</button>
         </div>
     </main>
 
+    <!-- نافذة إتمام الشراء -->
+    <div id="checkout-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2>إتمام الشراء</h2>
+            <form id="checkout-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>الاسم الكامل *</label>
+                        <input type="text" id="customer-name" required placeholder="أدخل اسمك الكامل">
+                    </div>
+                    <div class="form-group">
+                        <label>رقم الهاتف *</label>
+                        <input type="tel" id="customer-phone" required placeholder="05xxxxxxxx">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" id="customer-email" placeholder="example@email.com">
+                </div>
+                <div class="form-group">
+                    <label>الولاية *</label>
+                    <select id="customer-wilaya" required>
+                        <option value="">اختر الولاية</option>
+                        <option value="الجزائر العاصمة">الجزائر العاصمة</option>
+                        <option value="وهران">وهران</option>
+                        <option value="قسنطينة">قسنطينة</option>
+                        <option value="عنابة">عنابة</option>
+                        <option value="البليدة">البليدة</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>العنوان الكامل *</label>
+                    <textarea id="customer-address" required placeholder="الشارع، الحي، الرمز البريدي"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>ملاحظات إضافية</label>
+                    <textarea id="customer-notes" placeholder="أي ملاحظات تريد إضافتها"></textarea>
+                </div>
+                <div class="payment-methods">
+                    <h3>طريقة الدفع:</h3>
+                    <label class="payment-option">
+                        <input type="radio" name="payment" value="cash" checked>
+                        <span>💵 الدفع عند الاستلام</span>
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="payment" value="card">
+                        <span>💳 الدفع بالبطاقة</span>
+                    </label>
+                </div>
+                <button type="submit" class="checkout-btn">تأكيد الطلب 🚀</button>
+            </form>
+        </div>
+    </div>
+
     <footer>
-        <p>© 2024 متجري الإلكتروني. جميع الحقوق محفوظة</p>
+        <div class="footer-bottom">
+            <p>© 2024 FibNo. جميع الحقوق محفوظة</p>
+        </div>
     </footer>
 
     <script src="script.js"></script>
 </body>
-</html>
+                    </html>
