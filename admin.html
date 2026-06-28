@@ -5,27 +5,23 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم - FibNo</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E👑%3C/text%3E%3C/svg%3E">
 </head>
 <body>
     <nav class="navbar admin-nav">
         <div class="container">
             <a href="index.html" class="logo">
                 <span class="logo-icon">👑</span>
-                <span class="logo-text">FibNo - لوحة التحكم</span>
+                <span class="logo-text">FibNo تحكم</span>
             </a>
             <ul class="nav-links">
-                <li><a href="index.html">المتجر</a></li>
-                <li><a href="products.html">المنتجات</a></li>
-                <li><a href="order-service.html">الوساطة</a></li>
-                <li><a href="admin.html" class="active">لوحة التحكم</a></li>
+                <li><a href="index.html">الموقع</a></li>
             </ul>
         </div>
     </nav>
 
     <main class="admin-page">
         <!-- تسجيل الدخول -->
-        <div id="login-section" class="admin-section">
+        <div id="login-section">
             <div class="login-card">
                 <h2>🔐 تسجيل الدخول</h2>
                 <form id="login-form">
@@ -39,133 +35,97 @@
         </div>
 
         <!-- لوحة التحكم -->
-        <div id="dashboard-section" class="admin-dashboard" style="display: none;">
-            <!-- الإحصائيات -->
+        <div id="dashboard-section" style="display:none;">
             <div class="stats-grid">
                 <div class="stat-card">
-                    <span class="stat-icon">📦</span>
+                    <span class="stat-icon">📋</span>
                     <div class="stat-info">
                         <h3 id="total-orders">0</h3>
-                        <p>إجمالي الطلبات</p>
+                        <p>الطلبات</p>
                     </div>
                 </div>
                 <div class="stat-card">
                     <span class="stat-icon">💰</span>
                     <div class="stat-info">
                         <h3 id="total-revenue">0 دج</h3>
-                        <p>إجمالي الإيرادات</p>
+                        <p>الإجمالي</p>
                     </div>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-icon">🌍</span>
+                    <span class="stat-icon">📢</span>
                     <div class="stat-info">
-                        <h3 id="total-service-orders">0</h3>
-                        <p>طلبات الوساطة</p>
-                    </div>
-                </div>
-                <div class="stat-card">
-                    <span class="stat-icon">🛍️</span>
-                    <div class="stat-info">
-                        <h3 id="total-products">0</h3>
-                        <p>المنتجات</p>
+                        <h3 id="total-posts">0</h3>
+                        <p>منشورات</p>
                     </div>
                 </div>
             </div>
 
-            <!-- التبويبات -->
             <div class="admin-tabs">
-                <button class="tab-btn active" onclick="switchTab('products')">📦 المنتجات</button>
-                <button class="tab-btn" onclick="switchTab('orders')">📋 الطلبات</button>
-                <button class="tab-btn" onclick="switchTab('service-orders')">🌍 الوساطة</button>
+                <button class="tab-btn active" onclick="switchTab('orders')">📋 الطلبات</button>
+                <button class="tab-btn" onclick="switchTab('posts')">📢 المنشورات</button>
                 <button class="tab-btn" onclick="switchTab('settings')">⚙️ الإعدادات</button>
             </div>
 
-            <!-- المنتجات -->
-            <div id="products-tab" class="tab-content active">
+            <!-- الطلبات -->
+            <div id="orders-tab" class="tab-content active">
+                <h3>طلبات الوساطة</h3>
+                <div id="admin-orders-list"></div>
+            </div>
+
+            <!-- المنشورات -->
+            <div id="posts-tab" class="tab-content">
                 <div class="tab-header">
-                    <h3>إدارة المنتجات</h3>
-                    <button class="cta-button" onclick="showAddProduct()">+ إضافة منتج</button>
+                    <h3>إدارة المنشورات</h3>
+                    <button class="cta-button" onclick="showAddPost()">+ منشور جديد</button>
                 </div>
-                <div class="products-list" id="admin-products-list"></div>
-            </div>
-
-            <!-- طلبات المتجر -->
-            <div id="orders-tab" class="tab-content">
-                <h3>طلبات المتجر</h3>
-                <div class="orders-list" id="admin-orders-list"></div>
-            </div>
-
-            <!-- طلبات الوساطة -->
-            <div id="service-orders-tab" class="tab-content">
-                <h3>🌍 طلبات الوساطة</h3>
-                <div class="orders-list" id="admin-service-orders-list"></div>
+                <div id="admin-posts-list"></div>
             </div>
 
             <!-- الإعدادات -->
             <div id="settings-tab" class="tab-content">
-                <h3>⚙️ إعدادات المتجر</h3>
+                <h3>⚙️ الإعدادات</h3>
                 <form id="settings-form" class="settings-form">
                     <div class="form-group">
-                        <label>رقم الواتساب لتلقي الطلبات</label>
-                        <input type="text" id="whatsapp-number" placeholder="213XXXXXXXXX" dir="ltr">
-                        <small>أدخل الرقم مع مفتاح الدولة (213 للجزائر)</small>
+                        <label>رقم الواتساب (مع مفتاح 213)</label>
+                        <input type="text" id="whatsapp-number" dir="ltr">
                     </div>
-                    <div class="form-group">
-                        <label>اسم المتجر</label>
-                        <input type="text" id="store-name" value="FibNo">
-                    </div>
-                    <button type="submit" class="cta-button">حفظ الإعدادات</button>
+                    <button type="submit" class="cta-button">حفظ</button>
                 </form>
             </div>
         </div>
     </main>
 
-    <!-- نافذة إضافة/تعديل منتج -->
-    <div id="product-modal" class="modal">
+    <!-- نافذة منشور -->
+    <div id="post-modal" class="modal">
         <div class="modal-content">
-            <span class="close-modal" onclick="closeProductModal()">&times;</span>
-            <h2 id="modal-title">إضافة منتج جديد</h2>
-            <form id="product-form" enctype="multipart/form-data">
-                <input type="hidden" id="product-id">
+            <span class="close-modal" onclick="closePostModal()">&times;</span>
+            <h2 id="post-modal-title">منشور جديد</h2>
+            <form id="post-form">
+                <input type="hidden" id="post-id">
                 <div class="form-group">
-                    <label>اسم المنتج</label>
-                    <input type="text" id="product-name" required>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label>السعر (دج)</label>
-                        <input type="number" id="product-price" required>
-                    </div>
-                    <div class="form-group">
-                        <label>السعر الأصلي (اختياري)</label>
-                        <input type="number" id="product-original-price">
-                    </div>
+                    <label>العنوان</label>
+                    <input type="text" id="post-title" required>
                 </div>
                 <div class="form-group">
-                    <label>الفئة</label>
-                    <select id="product-category">
-                        <option value="electronics">إلكترونيات</option>
-                        <option value="clothing">ملابس</option>
-                        <option value="books">كتب</option>
-                        <option value="home">منزل</option>
+                    <label>المحتوى</label>
+                    <textarea id="post-content" rows="4" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>رابط (اختياري)</label>
+                    <input type="url" id="post-link" placeholder="https://..." dir="ltr">
+                </div>
+                <div class="form-group">
+                    <label>لون الخلفية</label>
+                    <select id="post-color">
+                        <option value="#667eea">أزرق</option>
+                        <option value="#00b894">أخضر</option>
+                        <option value="#e94560">أحمر</option>
+                        <option value="#fdcb6e">أصفر</option>
+                        <option value="#6c5ce7">بنفسجي</option>
                     </select>
                 </div>
-                <div class="form-group">
-                    <label>الوصف</label>
-                    <textarea id="product-description" rows="3"></textarea>
-                </div>
-                <div class="form-group">
-                    <label>صورة المنتج (ارفع من جهازك)</label>
-                    <div class="image-upload-area" id="image-upload-area" onclick="document.getElementById('product-image-input').click()">
-                        <span id="upload-placeholder">📷 اضغط لاختيار صورة</span>
-                        <img id="image-preview" style="display:none;max-width:100%;max-height:200px;border-radius:10px;">
-                    </div>
-                    <input type="file" id="product-image-input" accept="image/*" style="display:none;" onchange="previewImage(event)">
-                </div>
-                <div class="modal-buttons">
-                    <button type="submit" class="cta-button">حفظ</button>
-                    <button type="button" class="secondary-button" onclick="closeProductModal()">إلغاء</button>
-                </div>
+                <button type="submit" class="cta-button">حفظ</button>
+                <button type="button" class="secondary-button" onclick="closePostModal()">إلغاء</button>
             </form>
         </div>
     </div>
