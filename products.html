@@ -3,17 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المنتجات - متجري الإلكتروني</title>
+    <title>المنتجات - FibNo</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🛍️%3C/text%3E%3C/svg%3E">
 </head>
 <body>
     <nav class="navbar">
         <div class="container">
-            <a href="index.html" class="logo">🛍️ متجري</a>
+            <a href="index.html" class="logo">
+                <span class="logo-icon">🛍️</span>
+                <span class="logo-text">FibNo</span>
+            </a>
             <ul class="nav-links">
                 <li><a href="index.html">الرئيسية</a></li>
                 <li><a href="products.html" class="active">المنتجات</a></li>
-                <li><a href="cart.html">سلة التسوق (<span id="cart-count">0</span>)</a></li>
+                <li><a href="cart.html">سلة التسوق 🛒<span id="cart-count">0</span></a></li>
+                <li><a href="admin.html" class="admin-link">👑 الأدمن</a></li>
             </ul>
             <div class="hamburger">☰</div>
         </div>
@@ -21,7 +26,7 @@
 
     <main class="products-page">
         <aside class="filters">
-            <h3>تصفية المنتجات</h3>
+            <h3>🔍 تصفية المنتجات</h3>
             <div class="filter-group">
                 <label>الفئة:</label>
                 <select id="category-filter">
@@ -29,27 +34,45 @@
                     <option value="electronics">إلكترونيات</option>
                     <option value="clothing">ملابس</option>
                     <option value="books">كتب</option>
+                    <option value="home">منزل</option>
                 </select>
             </div>
             <div class="filter-group">
-                <label>السعر:</label>
-                <input type="range" id="price-filter" min="0" max="1000" value="1000">
-                <span id="price-value">1000 ريال</span>
+                <label>السعر الأقصى:</label>
+                <input type="range" id="price-filter" min="0" max="50000" value="50000" step="100">
+                <div class="price-range">
+                    <span>0 دج</span>
+                    <span id="price-value">50,000 دج</span>
+                </div>
             </div>
             <div class="filter-group">
                 <label>البحث:</label>
                 <input type="text" id="search-input" placeholder="ابحث عن منتج...">
             </div>
+            <button class="reset-filters" onclick="resetFilters()">مسح الفلاتر</button>
         </aside>
 
         <section class="all-products">
-            <h2>جميع المنتجات</h2>
+            <div class="products-header">
+                <h2>جميع المنتجات</h2>
+                <div class="sort-options">
+                    <label>ترتيب حسب:</label>
+                    <select id="sort-select">
+                        <option value="default">الافتراضي</option>
+                        <option value="price-asc">السعر: من الأقل للأعلى</option>
+                        <option value="price-desc">السعر: من الأعلى للأقل</option>
+                        <option value="name">الاسم</option>
+                    </select>
+                </div>
+            </div>
             <div class="products-grid" id="all-products"></div>
         </section>
     </main>
 
     <footer>
-        <p>© 2024 متجري الإلكتروني. جميع الحقوق محفوظة</p>
+        <div class="footer-bottom">
+            <p>© 2024 FibNo. جميع الحقوق محفوظة</p>
+        </div>
     </footer>
 
     <script src="script.js"></script>
