@@ -19,29 +19,19 @@ let exchangeRate = 135;
 
 // ============ التهيئة ============
 document.addEventListener('DOMContentLoaded', async () => {
-    // تحميل الإعدادات
     await loadSettings();
     
-    // ملء الولايات
     const wilayaSelect = document.getElementById('wilaya');
     if (wilayaSelect) {
         wilayaSelect.innerHTML = '<option value="">اختر الولاية</option>' +
             wilayas.map(w => `<option value="${w}">${w}</option>`).join('');
     }
     
-    // حاسبة عائمة
     setupFloatingCalc();
-    
-    // نموذج الطلب
     setupOrderForm();
-    
-    // المنشورات في الأعلى
     loadPostsTop();
-    
-    // القائمة
     setupMobileMenu();
     
-    // تحديث حاسبة الطلب
     document.addEventListener('input', (e) => {
         if (e.target.classList.contains('product-price-usd')) {
             updateOrderCalculator();
@@ -49,7 +39,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
-// ============ تحميل الإعدادات ============
 async function loadSettings() {
     try {
         const response = await fetch('/api/settings');
@@ -61,17 +50,11 @@ async function loadSettings() {
         exchangeRate = 135;
     }
     
-    // تحديث عرض السعر
-    updateRateDisplay();
-}
-
-function updateRateDisplay() {
     document.querySelectorAll('#float-rate-display, #order-rate-display').forEach(el => {
         if (el) el.textContent = exchangeRate;
     });
 }
 
-// ============ القائمة ============
 function setupMobileMenu() {
     const hamburger = document.querySelector('.hamburger');
     if (hamburger) {
@@ -81,7 +64,7 @@ function setupMobileMenu() {
     }
 }
 
-// ============ الحاسبة العائمة ============
+// ============ فقاعة الحاسبة ============
 function setupFloatingCalc() {
     const priceInput = document.getElementById('float-product-price');
     if (priceInput) {
@@ -89,15 +72,16 @@ function setupFloatingCalc() {
     }
 }
 
-function toggleFloatingCalc() {
-    const body = document.getElementById('floating-calc-body');
-    const icon = document.querySelector('.toggle-icon');
-    if (body.style.display === 'none') {
-        body.style.display = 'block';
-        icon.textContent = '▼';
+function toggleCalcBubble() {
+    const popup = document.getElementById('calc-popup');
+    const bubble = document.getElementById('calc-bubble');
+    
+    if (popup.style.display === 'none' || popup.style.display === '') {
+        popup.style.display = 'block';
+        bubble.style.display = 'none';
     } else {
-        body.style.display = 'none';
-        icon.textContent = '▲';
+        popup.style.display = 'none';
+        bubble.style.display = 'flex';
     }
 }
 
@@ -233,7 +217,6 @@ function updateOrderCalculator() {
     document.getElementById('total-to-pay').textContent = Math.round(grandTotal).toLocaleString('ar-DZ') + ' دج';
 }
 
-// ============ واتساب ============
 async function sendOrderToWhatsApp(orderData) {
     let whatsappNumber = '213550000000';
     
@@ -283,19 +266,19 @@ function loadPostsTop() {
     
     section.style.display = 'block';
     
-    container.innerHTML = posts.slice(0, 3).map(post => `
+    // تكرار المنشورات للحركة المستمرة
+    const doubledPosts = [...posts, ...posts];
+    
+    container.innerHTML = doubledPosts.map(post => `
         <div class="post-top-item" style="background:${post.color || '#667eea'}">
             <span>📢</span>
-            <div>
-                <strong>${post.title}</strong>
-                <span>${post.content}</span>
-            </div>
+            <strong>${post.title}</strong>
+            <span>${post.content}</span>
             ${post.link ? `<a href="${post.link}" target="_blank">🔗</a>` : ''}
         </div>
     `).join('');
 }
 
-// ============ إشعارات ============
 function showNotification(message, type = 'success') {
     const old = document.querySelectorAll('.notification');
     old.forEach(n => n.remove());
@@ -305,5 +288,8 @@ function showNotification(message, type = 'success') {
     notification.style.background = type === 'error' ? '#e74c3c' : '#00b894';
     notification.textContent = message;
     document.body.appendChild(notification);
-    setTimeout(() => notification.remove(), 3000);
-        }
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
