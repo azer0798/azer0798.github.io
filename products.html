@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المنتجات - متجري الإلكتروني</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">🛍️ متجري</a>
+            <ul class="nav-links">
+                <li><a href="index.html">الرئيسية</a></li>
+                <li><a href="products.html" class="active">المنتجات</a></li>
+                <li><a href="cart.html">سلة التسوق (<span id="cart-count">0</span>)</a></li>
+            </ul>
+            <div class="hamburger">☰</div>
+        </div>
+    </nav>
+
+    <main class="products-page">
+        <aside class="filters">
+            <h3>تصفية المنتجات</h3>
+            <div class="filter-group">
+                <label>الفئة:</label>
+                <select id="category-filter">
+                    <option value="all">الكل</option>
+                    <option value="electronics">إلكترونيات</option>
+                    <option value="clothing">ملابس</option>
+                    <option value="books">كتب</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>السعر:</label>
+                <input type="range" id="price-filter" min="0" max="1000" value="1000">
+                <span id="price-value">1000 ريال</span>
+            </div>
+            <div class="filter-group">
+                <label>البحث:</label>
+                <input type="text" id="search-input" placeholder="ابحث عن منتج...">
+            </div>
+        </aside>
+
+        <section class="all-products">
+            <h2>جميع المنتجات</h2>
+            <div class="products-grid" id="all-products"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p>© 2024 متجري الإلكتروني. جميع الحقوق محفوظة</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
