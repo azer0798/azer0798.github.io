@@ -17,32 +17,28 @@
             <ul class="nav-links">
                 <li><a href="index.html">المتجر</a></li>
                 <li><a href="products.html">المنتجات</a></li>
+                <li><a href="order-service.html">الوساطة</a></li>
                 <li><a href="admin.html" class="active">لوحة التحكم</a></li>
             </ul>
         </div>
     </nav>
 
     <main class="admin-page">
-        <!-- رسالة تسجيل الدخول -->
+        <!-- تسجيل الدخول -->
         <div id="login-section" class="admin-section">
             <div class="login-card">
                 <h2>🔐 تسجيل الدخول</h2>
                 <form id="login-form">
-                    <div class="form-group">
-                        <label>اسم المستخدم</label>
-                        <input type="text" id="admin-username" required placeholder="admin">
-                    </div>
                     <div class="form-group">
                         <label>كلمة المرور</label>
                         <input type="password" id="admin-password" required placeholder="••••••">
                     </div>
                     <button type="submit" class="cta-button">دخول</button>
                 </form>
-                <p class="hint">الافتراضي: admin / admin123</p>
             </div>
         </div>
 
-        <!-- لوحة التحكم الرئيسية -->
+        <!-- لوحة التحكم -->
         <div id="dashboard-section" class="admin-dashboard" style="display: none;">
             <!-- الإحصائيات -->
             <div class="stats-grid">
@@ -61,10 +57,10 @@
                     </div>
                 </div>
                 <div class="stat-card">
-                    <span class="stat-icon">📝</span>
+                    <span class="stat-icon">🌍</span>
                     <div class="stat-info">
-                        <h3 id="pending-orders">0</h3>
-                        <p>طلبات معلقة</p>
+                        <h3 id="total-service-orders">0</h3>
+                        <p>طلبات الوساطة</p>
                     </div>
                 </div>
                 <div class="stat-card">
@@ -80,10 +76,11 @@
             <div class="admin-tabs">
                 <button class="tab-btn active" onclick="switchTab('products')">📦 المنتجات</button>
                 <button class="tab-btn" onclick="switchTab('orders')">📋 الطلبات</button>
+                <button class="tab-btn" onclick="switchTab('service-orders')">🌍 الوساطة</button>
                 <button class="tab-btn" onclick="switchTab('settings')">⚙️ الإعدادات</button>
             </div>
 
-            <!-- تبويب المنتجات -->
+            <!-- المنتجات -->
             <div id="products-tab" class="tab-content active">
                 <div class="tab-header">
                     <h3>إدارة المنتجات</h3>
@@ -92,48 +89,30 @@
                 <div class="products-list" id="admin-products-list"></div>
             </div>
 
-            <!-- تبويب الطلبات -->
+            <!-- طلبات المتجر -->
             <div id="orders-tab" class="tab-content">
-                <h3>الطلبات الواردة</h3>
+                <h3>طلبات المتجر</h3>
                 <div class="orders-list" id="admin-orders-list"></div>
             </div>
 
-            <!-- تبويب الإعدادات -->
+            <!-- طلبات الوساطة -->
+            <div id="service-orders-tab" class="tab-content">
+                <h3>🌍 طلبات الوساطة</h3>
+                <div class="orders-list" id="admin-service-orders-list"></div>
+            </div>
+
+            <!-- الإعدادات -->
             <div id="settings-tab" class="tab-content">
                 <h3>⚙️ إعدادات المتجر</h3>
                 <form id="settings-form" class="settings-form">
                     <div class="form-group">
                         <label>رقم الواتساب لتلقي الطلبات</label>
-                        <input type="text" id="whatsapp-number" placeholder="213XXXXXXXXX" 
-                               value="213550000000" dir="ltr">
+                        <input type="text" id="whatsapp-number" placeholder="213XXXXXXXXX" dir="ltr">
                         <small>أدخل الرقم مع مفتاح الدولة (213 للجزائر)</small>
                     </div>
                     <div class="form-group">
                         <label>اسم المتجر</label>
                         <input type="text" id="store-name" value="FibNo">
-                    </div>
-                    <div class="form-group">
-                        <label>العملة</label>
-                        <input type="text" id="store-currency" value="دج" readonly>
-                    </div>
-                    <div class="form-group">
-                        <label>رسالة الواتساب التلقائية</label>
-                        <textarea id="whatsapp-message" rows="4">
-مرحباً FibNo،
-لقد تلقيت طلباً جديداً:
-
-العميل: {name}
-الهاتف: {phone}
-الولاية: {wilaya}
-العنوان: {address}
-
-المنتجات:
-{products}
-
-الإجمالي: {total} دج
-
-شكراً لك!
-                        </textarea>
                     </div>
                     <button type="submit" class="cta-button">حفظ الإعدادات</button>
                 </form>
@@ -146,7 +125,7 @@
         <div class="modal-content">
             <span class="close-modal" onclick="closeProductModal()">&times;</span>
             <h2 id="modal-title">إضافة منتج جديد</h2>
-            <form id="product-form">
+            <form id="product-form" enctype="multipart/form-data">
                 <input type="hidden" id="product-id">
                 <div class="form-group">
                     <label>اسم المنتج</label>
@@ -176,8 +155,12 @@
                     <textarea id="product-description" rows="3"></textarea>
                 </div>
                 <div class="form-group">
-                    <label>رابط الصورة (URL)</label>
-                    <input type="url" id="product-image" placeholder="https://...">
+                    <label>صورة المنتج (ارفع من جهازك)</label>
+                    <div class="image-upload-area" id="image-upload-area" onclick="document.getElementById('product-image-input').click()">
+                        <span id="upload-placeholder">📷 اضغط لاختيار صورة</span>
+                        <img id="image-preview" style="display:none;max-width:100%;max-height:200px;border-radius:10px;">
+                    </div>
+                    <input type="file" id="product-image-input" accept="image/*" style="display:none;" onchange="previewImage(event)">
                 </div>
                 <div class="modal-buttons">
                     <button type="submit" class="cta-button">حفظ</button>
@@ -189,4 +172,4 @@
 
     <script src="admin.js"></script>
 </body>
-  </html>
+</html>
