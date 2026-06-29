@@ -14,8 +14,31 @@ const wilayas = [
     '55 - تقرت','56 - جانت','57 - عين صالح','58 - عين قزام'
 ];
 
-const COMMISSION = 25;
-let exchangeRate = 135;
+const COMMISSION_MAX = 500; // الحد الأقصى للعمولة
+let exchangeRate = 250; // سعر الصرف الافتراضي
+
+// ============ حساب العمولة ============
+function calculateCommission(priceUSD) {
+    const priceDZD = priceUSD * exchangeRate;
+    let commission;
+    
+    if (priceUSD <= 5) {
+        commission = priceDZD * 0.40; // 40%
+    } else if (priceUSD <= 10) {
+        commission = priceDZD * 0.20; // 20%
+    } else if (priceUSD <= 20) {
+        commission = priceDZD * 0.10; // 10%
+    } else {
+        commission = COMMISSION_MAX; // 500 دج ثابت
+    }
+    
+    // لا تتجاوز 500 دج
+    if (commission > COMMISSION_MAX) {
+        commission = COMMISSION_MAX;
+    }
+    
+    return Math.round(commission);
+}
 
 // ============ التهيئة ============
 document.addEventListener('DOMContentLoaded', async () => {
@@ -39,15 +62,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 });
 
+// ============ تحميل الإعدادات ============
 async function loadSettings() {
     try {
         const response = await fetch('/api/settings');
         if (response.ok) {
             const settings = await response.json();
-            exchangeRate = settings.exchangeRate || 135;
+            exchangeRate = settings.exchangeRate || 250;
         }
     } catch (e) {
-        exchangeRate = 135;
+        exchangeRate = 250;
     }
     
     document.querySelectorAll('#float-rate-display, #order-rate-display').forEach(el => {
@@ -55,6 +79,7 @@ async function loadSettings() {
     });
 }
 
+// ============ القائمة ============
 function setupMobileMenu() {
     const hamburger = document.querySelector('.hamburger');
     if (hamburger) {
@@ -64,7 +89,7 @@ function setupMobileMenu() {
     }
 }
 
-// ============ فقاعة الحاسبة ============
+// ============ الحاسبة العائمة ============
 function setupFloatingCalc() {
     const priceInput = document.getElementById('float-product-price');
     if (priceInput) {
@@ -87,12 +112,20 @@ function toggleCalcBubble() {
 
 function updateFloatingCalc() {
     const price = parseFloat(document.getElementById('float-product-price')?.value) || 0;
+    
+    if (price === 0) {
+        document.getElementById('float-price-dzd').textContent = '0 دج';
+        document.getElementById('float-commission').textContent = '0 دج';
+        document.getElementById('float-total').textContent = '0 دج';
+        return;
+    }
+    
     const priceDZD = price * exchangeRate;
-    const commission = priceDZD * (COMMISSION / 100);
+    const commission = calculateCommission(price);
     const total = priceDZD + commission;
     
     document.getElementById('float-price-dzd').textContent = Math.round(priceDZD).toLocaleString('ar-DZ') + ' دج';
-    document.getElementById('float-commission').textContent = Math.round(commission).toLocaleString('ar-DZ') + ' دج';
+    document.getElementById('float-commission').textContent = commission.toLocaleString('ar-DZ') + ' دج';
     document.getElementById('float-total').textContent = Math.round(total).toLocaleString('ar-DZ') + ' دج';
 }
 
@@ -118,7 +151,7 @@ function setupOrderForm() {
                 products.push({
                     link: link,
                     priceUSD: price,
-                    notes: entry.querySelector('.product-notes').value || ''
+                    notes: entry.querySelector('.product-notes')?.value || ''
                 });
                 totalUSD += price;
             }
@@ -139,7 +172,7 @@ function setupOrderForm() {
         }
         
         const totalDZD = totalUSD * exchangeRate;
-        const commissionAmount = totalDZD * (COMMISSION / 100);
+        const commissionAmount = calculateCommission(totalUSD);
         const grandTotal = totalDZD + commissionAmount;
         
         const orderData = {
@@ -157,17 +190,19 @@ function setupOrderForm() {
             commission: commissionAmount,
             grandTotal: grandTotal,
             payment: document.querySelector('input[name="payment"]:checked')?.value || 'baridi',
-            notes: document.getElementById('notes').value.trim(),
+            notes: document.getElementById('notes')?.value.trim() || '',
             date: new Date().toLocaleString('ar-DZ'),
             status: 'new'
         };
         
+        // حفظ الطلب
         const orders = JSON.parse(localStorage.getItem('fibno_orders')) || [];
         orders.unshift(orderData);
         localStorage.setItem('fibno_orders', JSON.stringify(orders));
         
-        await sendOrderToWhatsApp(orderData);
+        // ✅ لا نرسل للواتساب - فقط نحفظ الطلب
         
+        // إظهار رسالة النجاح
         document.getElementById('order-form').style.display = 'none';
         document.getElementById('success-message').style.display = 'block';
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -207,51 +242,25 @@ function updateOrderCalculator() {
         totalUSD += parseFloat(input.value) || 0;
     });
     
+    if (totalUSD === 0) {
+        document.getElementById('products-total-usd').textContent = '0.00 $';
+        document.getElementById('products-total-dzd').textContent = '0 دج';
+        document.getElementById('commission-amount').textContent = '0 دج';
+        document.getElementById('total-to-pay').textContent = '0 دج';
+        return;
+    }
+    
     const totalDZD = totalUSD * exchangeRate;
-    const commissionAmount = totalDZD * (COMMISSION / 100);
+    const commissionAmount = calculateCommission(totalUSD);
     const grandTotal = totalDZD + commissionAmount;
     
     document.getElementById('products-total-usd').textContent = totalUSD.toFixed(2) + ' $';
     document.getElementById('products-total-dzd').textContent = Math.round(totalDZD).toLocaleString('ar-DZ') + ' دج';
-    document.getElementById('commission-amount').textContent = Math.round(commissionAmount).toLocaleString('ar-DZ') + ' دج';
+    document.getElementById('commission-amount').textContent = commissionAmount.toLocaleString('ar-DZ') + ' دج';
     document.getElementById('total-to-pay').textContent = Math.round(grandTotal).toLocaleString('ar-DZ') + ' دج';
 }
 
-async function sendOrderToWhatsApp(orderData) {
-    let whatsappNumber = '213550000000';
-    
-    try {
-        const response = await fetch('/api/settings');
-        if (response.ok) {
-            const settings = await response.json();
-            whatsappNumber = settings.whatsapp || whatsappNumber;
-        }
-    } catch (e) {}
-    
-    const paymentNames = { baridi: '📱 بريدي موب', ccp: '🏦 CCP' };
-    
-    const productsList = orderData.products.map((p, i) => 
-        `${i + 1}. ${p.link}\n   💰 ${p.priceUSD.toFixed(2)} $ | 📝 ${p.notes || 'لا يوجد'}`
-    ).join('\n\n');
-    
-    const message = `🆕 *طلب وساطة جديد*\n\n` +
-                   `🆔 ${orderData.id}\n\n` +
-                   `👤 ${orderData.firstName} ${orderData.lastName}\n` +
-                   `📱 ${orderData.phone}\n` +
-                   `📍 ${orderData.commune} - ${orderData.wilaya}\n` +
-                   `📮 ${orderData.postOffice}\n` +
-                   `💳 ${paymentNames[orderData.payment]}\n\n` +
-                   `📦 *المنتجات:*\n${productsList}\n\n` +
-                   `💵 ${orderData.totalUSD.toFixed(2)} $ × ${orderData.exchangeRate} = ${Math.round(orderData.totalDZD).toLocaleString('ar-DZ')} دج\n` +
-                   `🔧 عمولة 25%: ${Math.round(orderData.commission).toLocaleString('ar-DZ')} دج\n` +
-                   `💎 *الإجمالي: ${Math.round(orderData.grandTotal).toLocaleString('ar-DZ')} دج*\n\n` +
-                   `📝 ${orderData.notes || 'لا يوجد'}\n` +
-                   `📅 ${orderData.date}`;
-    
-    window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
-}
-
-// ============ المنشورات في الأعلى ============
+// ============ المنشورات ============
 function loadPostsTop() {
     const container = document.getElementById('posts-top-container');
     const section = document.getElementById('posts-top-section');
@@ -266,7 +275,6 @@ function loadPostsTop() {
     
     section.style.display = 'block';
     
-    // تكرار المنشورات للحركة المستمرة
     const doubledPosts = [...posts, ...posts];
     
     container.innerHTML = doubledPosts.map(post => `
@@ -279,6 +287,7 @@ function loadPostsTop() {
     `).join('');
 }
 
+// ============ الإشعارات ============
 function showNotification(message, type = 'success') {
     const old = document.querySelectorAll('.notification');
     old.forEach(n => n.remove());
@@ -292,4 +301,4 @@ function showNotification(message, type = 'success') {
         notification.style.opacity = '0';
         setTimeout(() => notification.remove(), 300);
     }, 3000);
-}
+    }
