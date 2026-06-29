@@ -14,26 +14,22 @@ const wilayas = [
     '55 - تقرت','56 - جانت','57 - عين صالح','58 - عين قزام'
 ];
 
-const COMMISSION_MAX = 500; // الحد الأقصى للعمولة
-let exchangeRate = 250; // سعر الصرف الافتراضي
+let exchangeRate = 250;
 
-// ============ حساب العمولة (نظام الفئات) ============
+// ============ حساب العمولة حسب الفئات ============
 function calculateCommission(totalUSD) {
-    let commission;
-    
     if (totalUSD <= 5) {
-        commission = 150; // 1$ - 5$
+        return 150; // 1$ - 5$
     } else if (totalUSD <= 15) {
-        commission = 300; // 6$ - 15$
+        return 300; // 6$ - 15$
     } else if (totalUSD <= 30) {
-        commission = 500; // 16$ - 30$
+        return 500; // 16$ - 30$
     } else {
-        commission = 600; // أكثر من 30$
+        return 600; // أكثر من 30$
     }
-    
-    return commission;
 }
-========= التهيئة ============
+
+// ============ التهيئة ============
 document.addEventListener('DOMContentLoaded', async () => {
     await loadSettings();
     
@@ -193,8 +189,6 @@ function setupOrderForm() {
         orders.unshift(orderData);
         localStorage.setItem('fibno_orders', JSON.stringify(orders));
         
-        // ✅ لا نرسل للواتساب - فقط نحفظ الطلب
-        
         // إظهار رسالة النجاح
         document.getElementById('order-form').style.display = 'none';
         document.getElementById('success-message').style.display = 'block';
@@ -294,4 +288,4 @@ function showNotification(message, type = 'success') {
         notification.style.opacity = '0';
         setTimeout(() => notification.remove(), 300);
     }, 3000);
-    }
+}
