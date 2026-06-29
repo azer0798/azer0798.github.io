@@ -17,30 +17,23 @@ const wilayas = [
 const COMMISSION_MAX = 500; // الحد الأقصى للعمولة
 let exchangeRate = 250; // سعر الصرف الافتراضي
 
-// ============ حساب العمولة ============
-function calculateCommission(priceUSD) {
-    const priceDZD = priceUSD * exchangeRate;
+// ============ حساب العمولة (نظام الفئات) ============
+function calculateCommission(totalUSD) {
     let commission;
     
-    if (priceUSD <= 5) {
-        commission = priceDZD * 0.40; // 40%
-    } else if (priceUSD <= 10) {
-        commission = priceDZD * 0.20; // 20%
-    } else if (priceUSD <= 20) {
-        commission = priceDZD * 0.10; // 10%
+    if (totalUSD <= 5) {
+        commission = 150; // 1$ - 5$
+    } else if (totalUSD <= 15) {
+        commission = 300; // 6$ - 15$
+    } else if (totalUSD <= 30) {
+        commission = 500; // 16$ - 30$
     } else {
-        commission = COMMISSION_MAX; // 500 دج ثابت
+        commission = 600; // أكثر من 30$
     }
     
-    // لا تتجاوز 500 دج
-    if (commission > COMMISSION_MAX) {
-        commission = COMMISSION_MAX;
-    }
-    
-    return Math.round(commission);
+    return commission;
 }
-
-// ============ التهيئة ============
+========= التهيئة ============
 document.addEventListener('DOMContentLoaded', async () => {
     await loadSettings();
     
