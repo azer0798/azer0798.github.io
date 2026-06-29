@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 whatsapp: document.getElementById('whatsapp-number').value,
-                exchangeRate: parseInt(document.getElementById('exchange-rate-setting').value) || 135
+                exchangeRate: parseInt(document.getElementById('exchange-rate-setting').value) || 250
             })
         });
         notify('✅ تم حفظ الإعدادات');
@@ -89,7 +89,7 @@ function loadOrders() {
                 <p>📱 ${order.phone} | 📮 ${order.postOffice}</p>
                 <p>📍 ${order.commune} - ${order.wilaya}</p>
                 <p>💳 ${order.payment === 'baridi' ? 'بريدي موب' : 'CCP'}</p>
-                <p>💱 سعر الصرف: 1$ = ${order.exchangeRate || 135} دج</p>
+                <p>💱 1$ = ${order.exchangeRate || 250} دج</p>
             </div>
             <div style="background:#f8f9fa;padding:10px;border-radius:8px;margin:10px 0;">
                 ${order.products.map((p, i) => `
@@ -98,7 +98,9 @@ function loadOrders() {
             </div>
             <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
                 <div>
-                    <p>💰 ${Math.round(order.grandTotal).toLocaleString('ar-DZ')} دج</p>
+                    <p>💰 المجموع: ${order.totalUSD.toFixed(2)} $</p>
+                    <p>🔧 العمولة: ${order.commission.toLocaleString('ar-DZ')} دج</p>
+                    <p style="font-weight:bold;color:#667eea;">💎 الإجمالي: ${Math.round(order.grandTotal).toLocaleString('ar-DZ')} دج</p>
                     <p style="font-size:12px;color:#666;">${order.date}</p>
                 </div>
                 <div style="display:flex;gap:8px;align-items:center;">
@@ -110,7 +112,9 @@ function loadOrders() {
                         <option value="shipped" ${order.status=='shipped'?'selected':''}>📦 شحن</option>
                         <option value="delivered" ${order.status=='delivered'?'selected':''}>✅ استلم</option>
                     </select>
-                    <a href="https://wa.me/${order.phone}" target="_blank" class="whatsapp-btn">💬</a>
+                    <button onclick="deleteOrder(${order.id})" style="background:#ff4757;color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:14px;">
+                        🗑️ حذف
+                    </button>
                 </div>
             </div>
             ${order.notes ? `<p style="margin-top:10px;color:#666;">📝 ${order.notes}</p>` : ''}
@@ -127,6 +131,17 @@ function updateStatus(orderId, status) {
         loadOrders();
         notify('✅ تم تحديث الحالة');
     }
+}
+
+// ============ حذف طلب ============
+function deleteOrder(orderId) {
+    if (!confirm('⚠️ هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع!')) return;
+    
+    let orders = JSON.parse(localStorage.getItem('fibno_orders')) || [];
+    orders = orders.filter(o => o.id !== orderId);
+    localStorage.setItem('fibno_orders', JSON.stringify(orders));
+    loadOrders();
+    notify('🗑️ تم حذف الطلب');
 }
 
 // ============ المنشورات ============
@@ -202,7 +217,7 @@ async function loadSettings() {
         const res = await fetch('/api/settings');
         const settings = await res.json();
         document.getElementById('whatsapp-number').value = settings.whatsapp || '213550000000';
-        document.getElementById('exchange-rate-setting').value = settings.exchangeRate || 135;
+        document.getElementById('exchange-rate-setting').value = settings.exchangeRate || 250;
     } catch (e) {}
 }
 
@@ -229,4 +244,4 @@ function notify(msg, type = 'success') {
     n.textContent = msg;
     document.body.appendChild(n);
     setTimeout(() => n.remove(), 3000);
-}
+        }
