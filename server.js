@@ -42,7 +42,7 @@ function sendFileSafe(res, filePath, fallbackPath) {
             <head><meta charset="UTF-8"><title>FibNo</title>
             <style>body{font-family:sans-serif;text-align:center;padding:50px;background:#f8f9fa;}
             h1{color:#667eea;}</style></head>
-            <body><h1>🌍 FibNo</h1><p>الملف غير موجود</p>
+            <body><h1>🛫 FibNo</h1><p>الملف غير موجود</p>
             <a href="/" style="color:#667eea;">العودة</a></body></html>
         `);
     }
@@ -67,12 +67,11 @@ app.use((req, res) => {
 
 app.listen(PORT, () => {
     console.log('='.repeat(50));
-    console.log(`🌍 FibNo - وساطة AliExpress و Temu`);
+    console.log(`🛫 FibNo - وساطة AliExpress و Temu`);
     console.log(`📡 http://localhost:${PORT}`);
     console.log(`📝 طلب: http://localhost:${PORT}/order`);
     console.log(`👑 تحكم: http://localhost:${PORT}/${ADMIN_PATH}`);
     console.log(`💱 الصرف: 1$ = ${settings.exchangeRate} دج`);
-    console.log(`💰 أقصى عمولة: 500 دج`);
     
     const files = ['index.html', 'order.html', 'admin.html', 'style.css', 'script.js', 'admin.js'];
     console.log('\n📁 فحص الملفات:');
