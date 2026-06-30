@@ -64,7 +64,19 @@ app.use((req, res) => {
         res.status(404).send('<h1>404</h1><a href="/">العودة</a>');
     }
 });
+// ============ Keep-Alive (منع إغلاق السيرفر) ============
+// السيرفر يعمل Ping على نفسه كل 10 دقائق
+const KEEP_ALIVE_INTERVAL = 10 * 60 * 1000; // 10 دقائق
+const SELF_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
 
+setInterval(async () => {
+    try {
+        const response = await fetch(`${SELF_URL}/api/settings`);
+        console.log(`🔄 Keep-Alive: ${response.status} OK - ${new Date().toLocaleTimeString('ar-DZ')}`);
+    } catch (error) {
+        console.log(`⚠️ Keep-Alive failed: ${error.message}`);
+    }
+}, KEEP_ALIVE_INTERVAL);
 app.listen(PORT, () => {
     console.log('='.repeat(50));
     console.log(`🛫 FibNo - وساطة AliExpress و Temu`);
